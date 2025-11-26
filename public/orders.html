@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Orders – Foodbank Logistics Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="orders.css" />
+</head>
+<body class="app">
+
+  <!-- SIDEBAR CHÍNH -->
+    <aside class="sidebar-main">
+  <div class="sidebar-main-header">
+    <div class="logo-circle">FB</div>
+    <div>
+      <div class="logo-title">Foodbank</div>
+      <div class="logo-sub">Logistics Hub</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-main-nav">
+    <button class="nav-item nav-item-active" onclick="goTo('orders.html')">
+      Đơn hàng
+    </button>
+
+    <button class="nav-item" onclick="goTo('trip.html')">
+      Trip / Tuyến đường
+    </button>
+
+    <button class="nav-item" onclick="goTo('campaign.html')">
+      Campaign
+    </button>
+
+    <button class="nav-item" onclick="goTo('volunteers.html')">
+      Tình nguyện viên
+    </button>
+
+    <button class="nav-item" onclick="goTo('community.html')">
+      Tổ dân phố
+    </button>
+
+    <button class="nav-item" onclick="goTo('warehouse.html')">
+      Kho tập kết
+    </button>
+
+    <button class="nav-item">
+      Sự cố & hỗ trợ
+    </button>
+  </nav>
+
+  <div class="sidebar-main-user">
+    <div class="avatar-circle">AD</div>
+    <div>
+      <div class="user-name">Admin – Vân</div>
+      <div class="user-role">Điều phối trung tâm</div>
+    </div>
+  </div>
+</aside>
+
+
+
+
+
+  <!-- LAYOUT ĐƠN HÀNG -->
+  <main class="orders-layout">
+    <!-- Header trên cùng -->
+    <header class="orders-header">
+      <div>
+        <h1>Orders</h1>
+        <p>Theo dõi tất cả yêu cầu giao hàng từ kho Foodbank đến hộ gia đình yếu thế.</p>
+      </div>
+      <div class="orders-header-actions">
+        <button class="btn btn-outline">Help</button>
+        <button class="btn btn-outline">Export</button>
+        <button class="btn btn-primary">+ Tạo yêu cầu đơn hàng</button>
+      </div>
+    </header>
+
+    <!-- Hàng filter, search -->
+    <section class="orders-filters">
+      <div class="filters-row">
+        <div class="filter-group">
+          <div class="search-wrapper">
+            <input
+              id="orderSearch"
+              class="input search-input"
+              placeholder="Search by Order ID, Volunteer, Household…"
+            />
+          </div>
+        </div>
+
+        <div class="filter-group filter-group-selects">
+          <select id="filterCampaign" class="input">
+            <option value="">All campaigns</option>
+          </select>
+          <select id="filterStatus" class="input">
+            <option value="">All status</option>
+            <option value="Upcoming">Upcoming</option>
+            <option value="InTransit">InTransit</option>
+            <option value="Delivered">Delivered</option>
+          </select>
+          <select id="filterWarehouse" class="input">
+            <option value="">All warehouses</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <button class="btn btn-outline" id="btnClearFilter">Clear</button>
+          <button class="btn btn-outline" id="btnApplyFilter">Filters</button>
+        </div>
+      </div>
+
+      <!-- Chip đếm số lượng theo trạng thái -->
+      <div class="status-chips-row">
+        <button class="status-chip status-chip-active" data-status="">
+          All orders <span class="chip-count" id="countAll">0</span>
+        </button>
+        <button class="status-chip" data-status="InTransit">
+          In-transit <span class="chip-count" id="countInTransit">0</span>
+        </button>
+        <button class="status-chip" data-status="Delivered">
+          Delivered <span class="chip-count" id="countDelivered">0</span>
+        </button>
+        <button class="status-chip" data-status="Upcoming">
+          Upcoming <span class="chip-count" id="countUpcoming">0</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Bảng đơn hàng -->
+    <section class="orders-table-wrapper">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Campaign</th>
+            <th>Household</th>
+            <th>Volunteer</th>
+            <th>Warehouse</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Accepted</th>
+            <th>Delivery</th>
+            <th>Completed</th>
+            <th>ETA</th>
+            <th class="col-action">Action</th>
+          </tr>
+        </thead>
+        <tbody id="orderTableBody">
+          <!-- JS render -->
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        <button class="page-btn" disabled>Previous</button>
+        <button class="page-number page-number-active">1</button>
+        <button class="page-number">2</button>
+        <button class="page-number">3</button>
+        <button class="page-btn">Next</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="orders.js"></script>
+  <script src="navigation.js"></script>
+
+
+</body>
+</html>

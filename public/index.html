@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Foodbank Logistics Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link rel="stylesheet" href="css/drawer.css" />
+
+    <!-- Leaflet (OpenStreetMap) -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+  </head>
+  <body>
+    <!-- Toast -->
+    <div id="app-toast" class="toast"></div>
+
+    <!-- ============ AUTH: chọn role + login/register ============ -->
+    <section id="auth-screen" class="auth-screen">
+      <div class="auth-card">
+        <div class="auth-card__header">
+          <div class="auth-logo">
+            <span class="auth-logo__icon">FB</span>
+            <div>
+              <div class="auth-logo__name">Foodbank</div>
+              <div class="auth-logo__sub">Logistics Hub</div>
+            </div>
+          </div>
+          <h1 class="auth-title">Chọn vai trò & đăng nhập</h1>
+          <p class="auth-subtitle">
+            Hệ thống hỗ trợ vận chuyển cứu trợ từ kho Foodbank đến hộ gia đình
+            yếu thế.
+          </p>
+        </div>
+
+        <!-- Chọn role -->
+        <div class="role-picker">
+          <button
+            class="role-pill role-pill--active"
+            data-role-card
+            data-role="admin"
+          >
+            Admin
+          </button>
+          <button class="role-pill" data-role-card data-role="community">
+            Community Leader
+          </button>
+          <button class="role-pill" data-role-card data-role="volunteer">
+            Volunteer
+          </button>
+          <button class="role-pill" data-role-card data-role="household">
+            Vulnerable Household
+          </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="auth-tabs">
+          <button
+            class="auth-tab auth-tab--active"
+            type="button"
+            data-auth-tab="login"
+          >
+            Đăng nhập
+          </button>
+          <button class="auth-tab" type="button" data-auth-tab="register">
+            Đăng ký tài khoản
+          </button>
+        </div>
+
+        <!-- Đăng nhập -->
+        <form id="auth-login-form" class="auth-form">
+          <div class="form__group">
+            <label for="login-username">Số điện thoại</label>
+            <input
+              id="login-username"
+              name="username"
+              type="tel"
+              placeholder="VD: 0909 000 001"
+              required
+            />
+          </div>
+          <div class="form__group">
+            <label for="login-password">Mật khẩu</label>
+            <input
+              id="login-password"
+              name="password"
+              type="password"
+              placeholder="••••••"
+              required
+            />
+          </div>
+          <p id="auth-login-hint" class="auth-hint"></p>
+          <button type="submit" class="btn btn--primary btn--fullwidth">
+            Đăng nhập
+          </button>
+        </form>
+
+        <!-- Đăng ký -->
+        <form
+          id="auth-register-form"
+          class="auth-form auth-form--hidden"
+          autocomplete="off"
+        >
+          <div class="form__group">
+            <label for="reg-fullname">Họ và tên</label>
+            <input
+              id="reg-fullname"
+              name="fullName"
+              type="text"
+              placeholder="VD: Nguyễn Văn A"
+              required
+            />
+          </div>
+          <div class="form__group">
+            <label for="reg-username">Số điện thoại</label>
+            <input
+              id="reg-username"
+              name="username"
+              type="tel"
+              placeholder="VD: 0909 000 099"
+              required
+            />
+          </div>
+          <div class="form__group">
+            <label for="reg-password">Mật khẩu</label>
+            <input
+              id="reg-password"
+              name="password"
+              type="password"
+              placeholder="Tối thiểu 4 ký tự"
+              required
+            />
+          </div>
+
+          <!-- Thông tin theo role -->
+          <div class="form__group" data-role-section="volunteer">
+            <label for="reg-volunteer-id">Volunteer ID</label>
+            <input
+              id="reg-volunteer-id"
+              name="volunteerId"
+              type="text"
+              placeholder="VD: VL_9100..."
+            />
+          </div>
+
+          <div class="form__group" data-role-section="household">
+            <label for="reg-household-id">Household ID</label>
+            <input
+              id="reg-household-id"
+              name="householdId"
+              type="text"
+              placeholder="VD: HH_9100..."
+            />
+          </div>
+
+          <div class="form__group" data-role-section="community">
+            <label for="reg-area-id">Kho / Khu vực phụ trách</label>
+            <input
+              id="reg-area-id"
+              name="areaId"
+              type="text"
+              placeholder="VD: WH_0002"
+            />
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--fullwidth">
+            Đăng ký & vào hệ thống
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ APP CHÍNH ============ -->
+    <div id="main-app" class="app-shell app-shell--hidden">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar__header">
+          <div class="sidebar-logo">
+            <span class="sidebar-logo__icon">FB</span>
+            <div>
+              <div class="sidebar-logo__name">Foodbank</div>
+              <div class="sidebar-logo__sub">Logistics Hub</div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a
+            href="#"
+            class="nav-item nav-item--active"
+            data-view-target="view-orders"
+            data-visible-roles="admin,volunteer,community,household"
+          >
+            <span class="nav-item__icon">📦</span>
+            <span class="nav-item__label">Đơn hàng</span>
+          </a>
+
+          <a
+            href="#"
+            class="nav-item"
+            data-view-target="view-campaigns"
+            data-visible-roles="admin,community"
+          >
+            <span class="nav-item__icon">🎯</span>
+            <span class="nav-item__label">Campaign</span>
+          </a>
+
+          <a
+            href="#"
+            class="nav-item"
+            data-view-target="view-volunteers"
+            data-visible-roles="admin,volunteer"
+          >
+            <span class="nav-item__icon">🤝</span>
+            <span class="nav-item__label">Tình nguyện viên</span>
+          </a>
+
+          <a
+            href="#"
+            class="nav-item"
+            data-view-target="view-community"
+            data-visible-roles="admin,community"
+          >
+            <span class="nav-item__icon">🏠</span>
+            <span class="nav-item__label">Tổ dân phố</span>
+          </a>
+
+          <a
+            href="#"
+            class="nav-item"
+            data-view-target="view-warehouses"
+            data-visible-roles="admin"
+          >
+            <span class="nav-item__icon">🏬</span>
+            <span class="nav-item__label">Kho & điểm tập kết</span>
+          </a>
+
+          <a
+            href="#"
+            class="nav-item"
+            data-view-target="view-incidents"
+            data-visible-roles="admin,volunteer,community"
+          >
+            <span class="nav-item__icon">⚠️</span>
+            <span class="nav-item__label">Sự cố & hỗ trợ</span>
+          </a>
+        </nav>
+
+        <div class="sidebar__footer">
+          <button id="btn-logout" class="btn btn--ghost btn--fullwidth">
+            Đăng xuất
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="main">
+        <!-- Topbar -->
+        <header class="topbar">
+          <div class="topbar__left">
+            <div class="topbar__path">Dashboard</div>
+            <h1 id="topbar-title" class="topbar__title">
+              Foodbank Logistics Hub
+            </h1>
+            <p id="topbar-subtitle" class="topbar__subtitle">
+              Theo dõi luồng hàng từ kho Foodbank đến hộ gia đình yếu thế.
+            </p>
+          </div>
+          <div class="topbar__right">
+            <div class="topbar-user">
+              <div id="topbar-avatar" class="avatar avatar--small">FB</div>
+              <div class="topbar-user__info">
+                <div id="topbar-user-name" class="topbar-user__name">User</div>
+                <div id="topbar-user-role" class="topbar-user__role">Role</div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- ===== VIEW ĐƠN HÀNG ===== -->
+        <section id="view-orders" class="view view--active">
+          <div class="metrics-row">
+            <div class="metric-card">
+              <div id="metric-total-label" class="metric-card__label">
+                Tổng đơn hôm nay
+              </div>
+              <div id="metric-total" class="metric-card__value">0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-card__label">Đang giao</div>
+              <div id="metric-intransit" class="metric-card__value">0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-card__label">Đã giao</div>
+              <div id="metric-delivered" class="metric-card__value">0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-card__label">Thất bại</div>
+              <div id="metric-failed" class="metric-card__value">0</div>
+            </div>
+          </div>
+
+          <!-- Toolbar -->
+          <div class="toolbar">
+            <div class="tabs">
+              <button class="tab tab--active" data-status="all">Tất cả</button>
+              <button class="tab" data-status="in-transit">Đang giao</button>
+              <button class="tab" data-status="delivered">Đã giao</button>
+              <button class="tab" data-status="upcoming">Chờ lấy</button>
+              <button class="tab" data-status="failed">Thất bại</button>
+            </div>
+
+            <div class="toolbar__right">
+              <div class="search-box">
+                <span class="search-box__icon">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Tìm Order / Volunteer / Campaign..."
+                />
+              </div>
+
+              <select class="select select--order-sort">
+                <option value="eta-asc">Sắp xếp: Gần đến hạn giao</option>
+                <option value="created-desc">Mới tạo trước</option>
+                <option value="priority-asc">Ưu tiên cao trước</option>
+              </select>
+
+              <label class="btn btn--ghost">
+                <input
+                  type="file"
+                  id="excel-input"
+                  accept=".xlsx,.xls"
+                  hidden
+                />
+                Import Excel
+              </label>
+
+              <button
+                id="btn-open-create-order"
+                class="btn btn--primary"
+                type="button"
+              >
+                + Tạo yêu cầu đơn hàng
+              </button>
+              <button
+                id="btn-open-create-campaign"
+                class="btn btn--secondary"
+                type="button"
+              >
+                + Tạo campaign mới
+              </button>
+            </div>
+          </div>
+
+          <div class="layout-two-cols">
+            <!-- LIST ORDERS + TRIPS -->
+            <section class="panel panel--orders">
+              <h2 class="panel__title">Danh sách đơn hàng</h2>
+              <div class="table-wrapper">
+                <table class="table table--orders">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Trạng thái</th>
+                      <th>Campaign</th>
+                      <th>Warehouse → Household</th>
+                      <th>Tình nguyện viên</th>
+                      <th>Created</th>
+                      <th>ETA</th>
+                    </tr>
+                  </thead>
+                  <tbody id="order-table-body"></tbody>
+                </table>
+              </div>
+
+              <h2 class="panel__title panel__title--sub">
+                Trip / tuyến giao hiện tại
+              </h2>
+              <div id="trip-list" class="trip-list"></div>
+            </section>
+
+            <!-- MAP + ROUTE DETAIL -->
+            <section class="panel panel--map">
+              <div class="panel__header">
+                <div>
+                  <h2 class="panel__title">Bản đồ & hành trình</h2>
+                  <div class="panel__subtitle">
+                    Đang theo dõi:
+                    <span id="route-current-order">Chưa chọn đơn / trip</span> –
+                    Route <span id="route-current-id">-</span>
+                  </div>
+                </div>
+                <div class="map-panel__view-toggle">
+                  <button class="chip chip--active">Map</button>
+                  <button class="chip">Satellite</button>
+                  <button class="chip">Layers</button>
+                </div>
+              </div>
+
+              <div id="fb-map" class="map"></div>
+
+              <div class="map-panel__tooltip">
+                <h4 id="map-tooltip-title">
+                  Chọn một đơn hàng hoặc trip ở cột bên trái
+                </h4>
+                <p id="map-tooltip-body">
+                  Thông tin warehouse, địa chỉ giao, ETA sẽ hiển thị tại đây.
+                </p>
+              </div>
+
+              <section class="route-info">
+                <h3>Thông tin Route / Trip</h3>
+                <dl class="route-info__grid">
+                  <div>
+                    <dt>Route / Trip ID</dt>
+                    <dd id="route-info-id">-</dd>
+                  </div>
+                  <div>
+                    <dt>Volunteer</dt>
+                    <dd id="route-info-volunteer-id">-</dd>
+                  </div>
+                  <div>
+                    <dt>Campaign</dt>
+                    <dd id="route-info-campaign-id">-</dd>
+                  </div>
+                  <div>
+                    <dt>Warehouse</dt>
+                    <dd id="route-info-warehouse-id">-</dd>
+                  </div>
+                  <div>
+                    <dt>Bắt đầu</dt>
+                    <dd id="route-info-start-time">-</dd>
+                  </div>
+                  <div>
+                    <dt>Tổng quãng đường</dt>
+                    <dd id="route-info-distance">-</dd>
+                  </div>
+                </dl>
+
+                <h4>Checkpoint (GPSTracking_Log)</h4>
+                <ul id="checkpoint-list" class="checkpoint-list"></ul>
+
+                <h4>Danh sách gói hàng trong đơn</h4>
+                <div class="table-wrapper">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Mã gói</th>
+                        <th>Tên hàng</th>
+                        <th>Nhóm</th>
+                        <th>Số lượng</th>
+                        <th>Đơn vị</th>
+                        <th>Khối lượng (kg)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="order-items-body"></tbody>
+                  </table>
+                </div>
+              </section>
+            </section>
+          </div>
+        </section>
+
+        <!-- ===== VIEW CAMPAIGNS ===== -->
+        <section id="view-campaigns" class="view">
+          <div class="panel">
+            <h2 class="panel__title">Campaign cứu trợ</h2>
+            <p class="panel__subtitle">
+              Danh sách các chiến dịch hỗ trợ, khu vực và trạng thái.
+            </p>
+            <div class="table-wrapper">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Campaign ID</th>
+                    <th>Tên chiến dịch</th>
+                    <th>Khu vực</th>
+                    <th>Trạng thái</th>
+                    <th>Bắt đầu</th>
+                    <th>Kết thúc</th>
+                  </tr>
+                </thead>
+                <tbody id="campaign-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Các view khác: placeholder -->
+        <section id="view-volunteers" class="view">
+          <div class="panel">
+            <h2 class="panel__title">Tình nguyện viên</h2>
+          </div>
+        </section>
+
+        <section id="view-community" class="view">
+          <div class="panel">
+            <h2 class="panel__title">Tổ dân phố & Hộ gia đình</h2>
+          </div>
+        </section>
+
+        <section id="view-warehouses" class="view">
+          <div class="panel">
+            <h2 class="panel__title">Kho & Điểm tập kết</h2>
+          </div>
+        </section>
+
+        <section id="view-incidents" class="view">
+          <div class="panel">
+            <h2 class="panel__title">Sự cố & Hỗ trợ</h2>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ===== Overlay & Drawer ===== -->
+    <div id="drawer-overlay" class="drawer-overlay"></div>
+
+    <!-- Drawer: tạo đơn -->
+    <aside id="drawer-order" class="drawer">
+      <div class="drawer__header">
+        <h2 class="drawer__title">Tạo yêu cầu đơn hàng</h2>
+        <button id="drawer-order-close" class="icon-btn" type="button">✕</button>
+      </div>
+      <div class="drawer__body">
+        <p class="drawer__subtitle">
+          Nhập thông tin đơn, hệ thống sẽ phân tuyến cho tình nguyện viên.
+        </p>
+
+        <form id="create-order-form" class="form">
+          <div class="form__group">
+            <label for="order_id">Order ID *</label>
+            <input
+              type="text"
+              id="order_id"
+              name="order_id"
+              placeholder="VD: 25ACDB99"
+              required
+            />
+          </div>
+
+          <div class="form__group">
+            <label for="status">Trạng thái ban đầu</label>
+            <select id="status" name="status">
+              <option value="Upcoming">Upcoming (Chờ lấy)</option>
+              <option value="InTransit">InTransit (Đang giao)</option>
+              <option value="Delivered">Delivered (Đã giao)</option>
+              <option value="Failed">Failed (Thất bại)</option>
+            </select>
+          </div>
+
+          <div class="form__group">
+            <label for="campaign_id">Campaign ID</label>
+            <input
+              type="text"
+              id="campaign_id"
+              name="campaign_id"
+              placeholder="VD: CP_2025001"
+            />
+          </div>
+
+          <div class="form__group">
+            <label for="warehouse_id">Warehouse ID</label>
+            <input
+              type="text"
+              id="warehouse_id"
+              name="warehouse_id"
+              placeholder="VD: WH_0001"
+            />
+          </div>
+
+          <div class="form__group">
+            <label for="household_id">Household ID</label>
+            <input
+              type="text"
+              id="household_id"
+              name="household_id"
+              placeholder="VD: HH_..."
+            />
+          </div>
+
+          <div class="form__group">
+            <label for="volunteer_id">Volunteer ID</label>
+            <input
+              type="text"
+              id="volunteer_id"
+              name="volunteer_id"
+              placeholder="VD: VL_..."
+            />
+          </div>
+
+          <div class="form__group">
+            <label for="route_id">Route ID</label>
+            <input
+              type="text"
+              id="route_id"
+              name="route_id"
+              placeholder="VD: RT_..."
+            />
+          </div>
+
+          <div class="form__group form__group--inline">
+            <div>
+              <label for="priority">Độ ưu tiên</label>
+              <select id="priority" name="priority">
+                <option value="">--</option>
+                <option value="1">1 (Cao)</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5 (Thấp)</option>
+              </select>
+            </div>
+            <div>
+              <label for="packages_count">Số kiện</label>
+              <input
+                type="number"
+                id="packages_count"
+                name="packages_count"
+                min="1"
+                placeholder="VD: 5"
+              />
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label for="total_weight_kg">Tổng khối lượng (kg)</label>
+            <input
+              type="number"
+              step="0.1"
+              id="total_weight_kg"
+              name="total_weight_kg"
+              placeholder="VD: 45"
+            />
+          </div>
+
+          <div class="form__group form__group--inline">
+            <div>
+              <label for="created_time">Created time</label>
+              <input
+                type="datetime-local"
+                id="created_time"
+                name="created_time"
+              />
+            </div>
+            <div>
+              <label for="eta_time">ETA</label>
+              <input type="datetime-local" id="eta_time" name="eta_time" />
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label for="notes">Ghi chú</label>
+            <textarea
+              id="notes"
+              name="notes"
+              rows="3"
+              placeholder="Ghi chú thêm..."
+            ></textarea>
+          </div>
+
+          <div class="drawer__footer">
+            <button
+              type="button"
+              id="btn-cancel-create-order"
+              class="btn btn--ghost"
+            >
+              Hủy
+            </button>
+            <button type="submit" class="btn btn--primary">Lưu đơn hàng</button>
+          </div>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Drawer: tạo campaign -->
+    <aside id="drawer-campaign" class="drawer">
+      <div class="drawer__header">
+        <h2 class="drawer__title">Tạo campaign mới</h2>
+        <button id="drawer-campaign-close" class="icon-btn" type="button">
+          ✕
+        </button>
+      </div>
+      <div class="drawer__body">
+        <p class="drawer__subtitle">
+          Định nghĩa một chiến dịch cứu trợ mới cho khu vực.
+        </p>
+
+        <form id="create-campaign-form" class="form">
+          <div class="form__group">
+            <label for="campaign_id_new">Campaign ID *</label>
+            <input
+              type="text"
+              id="campaign_id_new"
+              name="campaign_id"
+              placeholder="VD: CP_2025010"
+              required
+            />
+          </div>
+
+          <div class="form__group">
+            <label for="campaign_name">Tên chiến dịch</label>
+            <input
+              type="text"
+              id="campaign_name"
+              name="name"
+              placeholder="VD: Hỗ trợ mùa mưa 2025"
+            />
+          </div>
+
+          <div class="form__group">
+            <label for="campaign_area">Khu vực</label>
+            <input
+              type="text"
+              id="campaign_area"
+              name="area"
+              placeholder="VD: Q.8, Q. Bình Tân..."
+            />
+          </div>
+
+          <div class="form__group form__group--inline">
+            <div>
+              <label for="campaign_start">Bắt đầu</label>
+              <input type="date" id="campaign_start" name="start_date" />
+            </div>
+            <div>
+              <label for="campaign_end">Kết thúc</label>
+              <input type="date" id="campaign_end" name="end_date" />
+            </div>
+          </div>
+
+          <div class="form__group">
+            <label for="campaign_status">Trạng thái</label>
+            <select id="campaign_status" name="status">
+              <option value="Active">Active</option>
+              <option value="Planning">Planning</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+
+          <div class="form__group">
+            <label for="campaign_description">Mô tả</label>
+            <textarea
+              id="campaign_description"
+              name="description"
+              rows="3"
+              placeholder="Mục tiêu, phạm vi, ghi chú..."
+            ></textarea>
+          </div>
+
+          <div class="drawer__footer">
+            <button
+              type="button"
+              id="btn-cancel-create-campaign"
+              class="btn btn--ghost"
+            >
+              Hủy
+            </button>
+            <button type="submit" class="btn btn--primary">
+              Lưu campaign
+            </button>
+          </div>
+        </form>
+      </div>
+    </aside>
+
+    <!-- JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZCc="
+      crossorigin=""
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

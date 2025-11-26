@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Kho tập kết – Foodbank Logistics Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS chung (sidebar, font, button…) -->
+  <link rel="stylesheet" href="orders.css" />
+
+  <!-- Leaflet / OpenStreetMap -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin=""
+  ></script>
+
+  <!-- CSS riêng cho layout Kho -->
+  <style>
+    body.app {
+      background: #f5f5fb;
+    }
+
+    /* KHÔNG override max-width/margin nữa, để orders.css lo
+       chỉ thêm cấu trúc dọc cho trang kho */
+    .wh-page {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .wh-header-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .wh-header-sub {
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .wh-header {
+      margin-bottom: 16px;
+    }
+
+    /* KHU VỰC MAP FULL + OVERLAY */
+    .wh-main {
+      margin-top: 12px;
+      position: relative;
+      flex: 1;
+      min-height: 480px;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+      background: #ffffff;
+      width: 100%;
+    }
+
+    /* Map OSM full khung .wh-main */
+    #warehouseMap {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Panel list kho đè lên map */
+    .wh-left-overlay {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      width: 360px;
+      max-height: calc(100% - 36px);
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+      padding: 16px 18px 12px;
+      z-index: 30;
+    }
+
+    .wh-search {
+      margin-bottom: 10px;
+    }
+
+    .wh-search-input {
+      width: 100%;
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .wh-chips-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .wh-chip {
+      border-radius: 999px;
+      padding: 6px 12px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .wh-chip-active {
+      background: #facc15;
+      border-color: #f59e0b;
+      font-weight: 600;
+    }
+
+    .wh-chip-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #fef3c7;
+      font-size: 10px;
+    }
+
+    .wh-list {
+      margin-top: 18px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .wh-empty {
+      font-size: 13px;
+      color: #9ca3af;
+      padding: 12px 4px;
+    }
+
+    .wh-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .wh-card:hover {
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .wh-card-active {
+      border-color: #facc15;
+      box-shadow: 0 10px 25px rgba(234, 179, 8, 0.4);
+      background: #fffbeb;
+    }
+
+    .wh-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #b45309;
+      font-size: 14px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .wh-card-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .wh-card-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .wh-card-id {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .wh-card-sub {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .wh-status-pill {
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+
+    .wh-status-active {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .wh-status-inactive {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    /* Toolbar Map / Satellite / Layers góc phải trên */
+    .wh-map-toolbar {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      z-index: 20;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .map-tabs {
+      display: inline-flex;
+      border-radius: 999px;
+      background: #f3f4f6;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .map-tab {
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      font-size: 11px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+
+    .map-tab-active {
+      background: #111827;
+      color: #f9fafb;
+    }
+
+    @media (max-width: 1100px) {
+      .wh-left-overlay {
+        width: 320px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .wh-left-overlay {
+        width: calc(100% - 32px);
+      }
+    }
+  </style>
+</head>
+
+<body class="app">
+  <!-- SIDEBAR CHÍNH -->
+  <aside class="sidebar-main">
+    <div class="sidebar-main-header">
+      <div class="logo-circle">FB</div>
+      <div>
+        <div class="logo-title">Foodbank</div>
+        <div class="logo-sub">Logistics Hub</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-main-nav">
+      <button class="nav-item" onclick="goTo('orders.html')">Đơn hàng</button>
+      <button class="nav-item" onclick="goTo('trip.html')">Trip / Tuyến đường</button>
+      <button class="nav-item" onclick="goTo('campaign.html')">Campaign</button>
+      <button class="nav-item" onclick="goTo('volunteers.html')">Tình nguyện viên</button>
+      <button class="nav-item" onclick="goTo('community.html')">Tổ dân phố</button>
+      <button class="nav-item nav-item-active" onclick="goTo('warehouse.html')">
+        Kho tập kết
+      </button>
+      <button class="nav-item">Sự cố & hỗ trợ</button>
+    </nav>
+
+    <div class="sidebar-main-user">
+      <div class="avatar-circle">AD</div>
+      <div>
+        <div class="user-name">Admin – Vân</div>
+        <div class="user-role">Điều phối trung tâm</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN: dùng chung layout orders-layout để nền trắng đồng nhất -->
+  <main class="orders-layout wh-page">
+    <!-- Header giống layout Tổ dân phố -->
+    <header class="orders-header wh-header">
+      <div>
+        <h1 class="wh-header-title">Warehouses</h1>
+        <p class="wh-header-sub">
+          Quản lý các kho tập kết của Foodbank và vị trí trên bản đồ.
+        </p>
+      </div>
+      <div class="orders-header-actions">
+        <button class="btn btn-outline">Help</button>
+        <button class="btn btn-outline">Export</button>
+        <button class="btn btn-primary">+ Thêm kho tập kết</button>
+      </div>
+    </header>
+
+    <!-- Khối map + list -->
+    <section class="wh-main">
+      <!-- Map full trong khung nội dung -->
+      <div id="warehouseMap"></div>
+
+      <!-- Toolbar trên map -->
+      <div class="wh-map-toolbar">
+        <div class="map-tabs">
+          <button class="map-tab map-tab-active">Map</button>
+          <button class="map-tab">Satellite</button>
+          <button class="map-tab">Layers</button>
+        </div>
+      </div>
+
+      <!-- Panel list kho đè lên map -->
+      <div class="wh-left-overlay">
+        <div class="wh-search">
+          <input
+            id="whSearch"
+            class="wh-search-input"
+            placeholder="Tìm Warehouse ID, quận, Area…"
+          />
+        </div>
+
+        <div class="wh-chips-row">
+          <button class="wh-chip wh-chip-active" data-status="">
+            All warehouses
+            <span class="wh-chip-count" id="chipAllCount">0</span>
+          </button>
+          <button class="wh-chip" data-status="Active">
+            Active
+            <span class="wh-chip-count" id="chipActiveCount">0</span>
+          </button>
+          <button class="wh-chip" data-status="Inactive">
+            Inactive
+            <span class="wh-chip-count" id="chipInactiveCount">0</span>
+          </button>
+        </div>
+
+        <div class="wh-list" id="whList">
+          <!-- JS render -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="warehouse.js"></script>
+  <script src="navigation.js"></script>
+</body>
+</html>

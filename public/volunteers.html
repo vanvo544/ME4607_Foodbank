@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Volunteers – Foodbank Logistics Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Dùng lại CSS của orders để đồng bộ layout -->
+  <link rel="stylesheet" href="orders.css" />
+</head>
+<body class="app">
+
+  <!-- SIDEBAR CHÍNH -->
+  <aside class="sidebar-main">
+  <div class="sidebar-main-header">
+    <div class="logo-circle">FB</div>
+    <div>
+      <div class="logo-title">Foodbank</div>
+      <div class="logo-sub">Logistics Hub</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-main-nav">
+    <button class="nav-item" onclick="goTo('orders.html')">
+      Đơn hàng
+    </button>
+
+    <button class="nav-item" onclick="goTo('trip.html')">
+      Trip / Tuyến đường
+    </button>
+
+    <button class="nav-item" onclick="goTo('campaign.html')">
+      Campaign
+    </button>
+
+    <button class="nav-item nav-item-active" onclick="goTo('volunteers.html')">
+      Tình nguyện viên
+    </button>
+
+    <button class="nav-item" onclick="goTo('community.html')">
+      Tổ dân phố
+    </button>
+
+    <button class="nav-item" onclick="goTo('warehouse.html')">
+      Kho tập kết
+    </button>
+
+    <button class="nav-item">
+      Sự cố & hỗ trợ
+    </button>
+  </nav>
+
+  <div class="sidebar-main-user">
+    <div class="avatar-circle">AD</div>
+    <div>
+      <div class="user-name">Admin – Vân</div>
+      <div class="user-role">Điều phối trung tâm</div>
+    </div>
+  </div>
+</aside>
+
+
+  <!-- LAYOUT VOLUNTEERS -->
+  <main class="orders-layout">
+    <!-- Header -->
+    <header class="orders-header">
+      <div>
+        <h1>Volunteers</h1>
+        <p>Quản lý đội tình nguyện viên giao hàng bằng xe máy cho Foodbank.</p>
+      </div>
+      <div class="orders-header-actions">
+        <button class="btn btn-outline">Help</button>
+        <button class="btn btn-outline">Export</button>
+        <button class="btn btn-primary">+ Thêm tình nguyện viên</button>
+      </div>
+    </header>
+
+    <!-- Filter / Search -->
+    <section class="orders-filters">
+      <div class="filters-row">
+        <div class="filter-group">
+          <div class="search-wrapper">
+            <input
+              id="volSearch"
+              class="input search-input"
+              placeholder="Tìm Volunteer ID, tên hoặc số điện thoại…"
+            />
+          </div>
+        </div>
+
+        <div class="filter-group filter-group-selects">
+          <select id="volFilterStatus" class="input">
+            <option value="">All status</option>
+            <option value="Available">Available</option>
+            <option value="Busy">Busy</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+
+          <select id="volFilterArea" class="input">
+            <option value="">All areas</option>
+          </select>
+
+          <select id="volFilterVehicle" class="input">
+            <option value="">All vehicles</option>
+            <option value="Xe máy">Xe máy</option>
+            <option value="Xe bán tải">Xe bán tải</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <button class="btn btn-outline" id="volBtnClear">Clear</button>
+          <button class="btn btn-outline" id="volBtnApply">Filters</button>
+        </div>
+      </div>
+
+      <!-- Status chips -->
+      <div class="status-chips-row">
+        <button class="status-chip status-chip-active" data-status="">
+          All volunteers <span class="chip-count" id="volCountAll">0</span>
+        </button>
+        <button class="status-chip" data-status="Available">
+          Available <span class="chip-count" id="volCountAvailable">0</span>
+        </button>
+        <button class="status-chip" data-status="Busy">
+          Busy <span class="chip-count" id="volCountBusy">0</span>
+        </button>
+        <button class="status-chip" data-status="Inactive">
+          Inactive <span class="chip-count" id="volCountInactive">0</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Bảng tình nguyện viên -->
+    <section class="orders-table-wrapper">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Volunteer</th>
+            <th>Phone</th>
+            <th>Vehicle</th>
+            <th>Plate</th>
+            <th>Max load (kg)</th>
+            <th>Area</th>
+            <th>Current trip</th>
+            <th>Status</th>
+            <th>Last active</th>
+            <th class="col-action">Action</th>
+          </tr>
+        </thead>
+        <tbody id="volTableBody">
+          <!-- JS render -->
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        <button class="page-btn" disabled>Previous</button>
+        <button class="page-number page-number-active">1</button>
+        <button class="page-number">2</button>
+        <button class="page-number">3</button>
+        <button class="page-btn">Next</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="volunteers.js"></script>
+  <script src="navigation.js"></script>
+</body>
+</html>
