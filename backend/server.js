@@ -8,9 +8,9 @@ const app = express();
 const PORT = 3000;
 
 // DB file
-const dbPath = path.join(__dirname, "foodbank.db");
+const dbPath = path.join(__dirname, "db", "foodbank.db");
 const db = new sqlite3.Database(dbPath);
-const userDbPath = path.join(__dirname, "users.db");
+const userDbPath = path.join(__dirname, "db", "users.db");
 const userDb = new sqlite3.Database(userDbPath);
 
 // user table for demo auth (store hashed passwords in real apps)
@@ -45,10 +45,11 @@ app.use(
     },
   })
 );
-// Static assets for the frontend (HTML lives in /public; shared assets in /css, /js, /assets)
-app.use(express.static(path.join(__dirname, "..", "public")));
-app.use("/css", express.static(path.join(__dirname, "..", "css")));
-app.use("/js", express.static(path.join(__dirname, "..", "js")));
+// Static assets for the frontend (HTML + CSS/JS live under /public)
+const publicDir = path.join(__dirname, "..", "public");
+app.use(express.static(publicDir));
+app.use("/css", express.static(path.join(publicDir, "css")));
+app.use("/js", express.static(path.join(publicDir, "js")));
 app.use("/assets", express.static(path.join(__dirname, "..", "assets")));
 
 // create tables + sample data
