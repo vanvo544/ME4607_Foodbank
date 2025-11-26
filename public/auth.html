@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sign in | Foodbank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+  </head>
+  <body>
+    <section class="auth-screen">
+      <div class="auth-card">
+        <div class="auth-card__header">
+          <div class="auth-logo">
+            <span class="auth-logo__icon">FB</span>
+            <div>
+              <div class="auth-logo__name">Foodbank</div>
+              <div class="auth-logo__sub">Logistics Hub</div>
+            </div>
+          </div>
+          <h1 class="auth-title">Welcome back</h1>
+          <p class="auth-subtitle">
+            Use your account to access the dashboard. Demo only; use strong
+            passwords and hashing (e.g. bcrypt) in production.
+          </p>
+        </div>
+
+        <div class="auth-tabs">
+          <button id="tab-login" class="auth-tab auth-tab--active" type="button">
+            Sign in
+          </button>
+          <button id="tab-register" class="auth-tab" type="button">
+            Register
+          </button>
+        </div>
+
+        <form id="login-form" class="auth-form">
+          <div class="form__group">
+            <label for="login-username">Username</label>
+            <input
+              id="login-username"
+              name="username"
+              type="text"
+              required
+              placeholder="Your username"
+              autocomplete="username"
+            />
+          </div>
+          <div class="form__group">
+            <label for="login-password">Password</label>
+            <input
+              id="login-password"
+              name="password"
+              type="password"
+              required
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+          </div>
+          <button class="btn btn--primary btn--fullwidth" type="submit">
+            Sign in
+          </button>
+          <p class="auth-hint">
+            Don't have an account?
+            <a href="#" id="go-register">Register here</a>
+          </p>
+        </form>
+
+        <form id="register-form" class="auth-form auth-form--hidden">
+          <div class="form__group">
+            <label for="register-username">Username</label>
+            <input
+              id="register-username"
+              name="username"
+              type="text"
+              required
+              minlength="3"
+              placeholder="Choose a username"
+              autocomplete="username"
+            />
+          </div>
+          <div class="form__group">
+            <label for="register-password">Password</label>
+            <input
+              id="register-password"
+              name="password"
+              type="password"
+              required
+              minlength="6"
+              placeholder="••••••••"
+              autocomplete="new-password"
+            />
+          </div>
+          <button class="btn btn--primary btn--fullwidth" type="submit">
+            Create account
+          </button>
+          <p class="auth-hint">
+            Already have an account?
+            <a href="#" id="go-login">Sign in here</a>
+          </p>
+        </form>
+
+        <div id="auth-message" class="auth-subtitle" role="status"></div>
+      </div>
+    </section>
+
+    <script src="auth.js"></script>
+  </body>
+</html>

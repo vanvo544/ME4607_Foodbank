@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Welcome | Foodbank</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+  </head>
+  <body>
+    <section class="auth-screen">
+      <div class="auth-card">
+        <div class="auth-card__header">
+          <div class="auth-logo">
+            <span class="auth-logo__icon">FB</span>
+            <div>
+              <div class="auth-logo__name">Foodbank</div>
+              <div class="auth-logo__sub">Logistics Hub</div>
+            </div>
+          </div>
+          <h1 class="auth-title">Welcome</h1>
+          <p id="welcome-subtitle" class="auth-subtitle">
+            Checking your session...
+          </p>
+        </div>
+        <div class="form__group">
+          <a class="btn btn--primary btn--fullwidth" href="index.html">
+            Go to dashboard
+          </a>
+        </div>
+        <button id="logout-btn" class="btn btn--ghost btn--fullwidth" type="button">
+          Log out
+        </button>
+      </div>
+    </section>
+
+    <script>
+      // Redirect to login if session is missing, otherwise show username.
+      fetch("/auth/me", { credentials: "include" })
+        .then((res) => {
+          if (!res.ok) throw new Error("unauthorized");
+          return res.json();
+        })
+        .then((data) => {
+          const subtitle = document.getElementById("welcome-subtitle");
+          subtitle.textContent = `Signed in as ${data.user.username}.`;
+        })
+        .catch(() => {
+          window.location.href = "/auth.html";
+        });
+
+      document.getElementById("logout-btn").addEventListener("click", () => {
+        window.location.href = "/auth/logout";
+      });
+    </script>
+  </body>
+</html>

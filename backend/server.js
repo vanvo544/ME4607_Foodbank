@@ -1,6 +1,7 @@
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
+const session = require("express-session");
 const sqlite3 = require("sqlite3").verbose();
 
 const app = express();
@@ -9,10 +10,46 @@ const PORT = 3000;
 // DB file
 const dbPath = path.join(__dirname, "foodbank.db");
 const db = new sqlite3.Database(dbPath);
+const userDbPath = path.join(__dirname, "users.db");
+const userDb = new sqlite3.Database(userDbPath);
+
+// user table for demo auth (store hashed passwords in real apps)
+userDb.serialize(() => {
+  userDb.run(
+    `CREATE TABLE IF NOT EXISTS users (
+      create_time DATETIME DEFAULT (datetime('now')),
+      username TEXT PRIMARY KEY,
+      password TEXT
+    )`
+  );
+});
 
 // middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(
+  session({
+    secret: "foodbank-demo-secret", // In production move to env var and rotate frequently.
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    },
+  })
+);
+// Static assets for the frontend (HTML lives in /public; shared assets in /css, /js, /assets)
+app.use(express.static(path.join(__dirname, "..", "public")));
+app.use("/css", express.static(path.join(__dirname, "..", "css")));
+app.use("/js", express.static(path.join(__dirname, "..", "js")));
+app.use("/assets", express.static(path.join(__dirname, "..", "assets")));
 
 // create tables + sample data
 db.serialize(() => {
@@ -190,6 +227,91 @@ db.serialize(() => {
 
     stmt.finalize();
   });
+});
+
+const requireAuth = (req, res, next) => {
+  if (req.session && req.session.user) {
+    return next();
+  }
+  if (req.accepts("html")) {
+    return res.redirect("/auth.html");
+  }
+  return res.status(401).json({ error: "unauthorized" });
+};
+
+// ========== AUTH ==========
+
+// POST /auth/register
+app.post("/auth/register", (req, res) => {
+  const username = (req.body.username || "").trim();
+  const password = (req.body.password || "").trim();
+
+  if (!username || !password) {
+    return res.status(400).json({ error: "username_and_password_required" });
+  }
+
+  // Note: use bcrypt or argon2 in production to hash passwords.
+  const sql = `INSERT INTO users (username, password) VALUES (?, ?)`;
+  userDb.run(sql, [username, password], function (err) {
+    if (err) {
+      if (err.code === "SQLITE_CONSTRAINT") {
+        return res.status(409).json({ error: "username_taken" });
+      }
+      console.error(err);
+      return res.status(500).json({ error: "db_error" });
+    }
+
+    req.session.user = { username };
+    return res.json({ ok: true, username });
+  });
+});
+
+// POST /auth/login
+app.post("/auth/login", (req, res) => {
+  const username = (req.body.username || "").trim();
+  const password = (req.body.password || "").trim();
+
+  if (!username || !password) {
+    return res.status(400).json({ error: "username_and_password_required" });
+  }
+
+  userDb.get(
+    "SELECT username, password FROM users WHERE username = ?",
+    [username],
+    (err, row) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "db_error" });
+      }
+      if (!row || row.password !== password) {
+        return res.status(401).json({ error: "invalid_credentials" });
+      }
+
+      req.session.user = { username: row.username };
+      return res.json({ ok: true, username: row.username });
+    }
+  );
+});
+
+// GET /auth/logout
+app.get("/auth/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.clearCookie("connect.sid");
+    res.redirect("/auth.html");
+  });
+});
+
+// GET /auth/me
+app.get("/auth/me", (req, res) => {
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({ error: "unauthorized" });
+  }
+  return res.json({ user: req.session.user });
+});
+
+// Protected welcome page
+app.get("/welcome", requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "public", "welcome.html"));
 });
 
 // ========== API ==========
