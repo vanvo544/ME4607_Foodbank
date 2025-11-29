@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Accounts – Foodbank Logistics Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Dùng chung CSS với Orders/Households -->
+  <link rel="stylesheet" href="orders.css" />
+
+  <style>
+    .hidden { display: none !important; }
+
+    /* Layout 2 cột: list bên trái, detail bên phải – giống style Trip/Warehouse */
+    .accounts-layout {
+      display: grid;
+      grid-template-columns: minmax(340px, 1.5fr) 360px;
+      gap: 18px;
+      height: calc(100vh - 120px); /* trừ header + filters giống các trang khác */
+    }
+
+    .accounts-list-panel {
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+      padding: 14px 16px 10px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .accounts-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .accounts-list-header-title {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .accounts-list-header-sub {
+      margin: 0;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .accounts-filters-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .accounts-filters-row select,
+    .accounts-filters-row input {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      font-size: 0.8rem;
+      background: #ffffff;
+      outline: none;
+    }
+
+    .accounts-filters-row input {
+      min-width: 220px;
+    }
+
+    .status-pill-pending {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .accounts-table-wrapper {
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .accounts-table-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+
+    .accounts-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      min-width: 720px;
+    }
+
+    .accounts-table thead th {
+      background: #f9fafb;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+
+    .accounts-table th,
+    .accounts-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .accounts-table tbody tr {
+      cursor: pointer;
+    }
+
+    .accounts-table tbody tr:hover {
+      background: #f3f4f6;
+    }
+
+    .accounts-table tbody tr.active-row {
+      background: #e5f3ff;
+    }
+
+    .cell-name {
+      font-weight: 500;
+    }
+
+    .view-btn {
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      padding: 4px 10px;
+      font-size: 0.7rem;
+      background: #f9fafb;
+      cursor: pointer;
+    }
+
+    .view-btn:hover {
+      background: #e5e7eb;
+    }
+
+    .accounts-table-footer {
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      color: #6b7280;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Badge role + status */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+    .badge-volunteer { background: #ecfdf5; color: #15803d; }
+    .badge-cl        { background: #eff6ff; color: #1d4ed8; }
+    .badge-hh        { background: #fefce8; color: #92400e; }
+
+    .status-pill {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .status-pending  { background: #fef3c7; color: #92400e; }
+    .status-approved { background: #dcfce7; color: #15803d; }
+    .status-rejected { background: #fee2e2; color: #b91c1c; }
+
+    /* Panel detail bên phải */
+    .accounts-detail-panel {
+      background: #f9fafb;
+      border-radius: 18px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+      padding: 14px 16px 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-header-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0 0 4px;
+    }
+
+    .detail-header-sub {
+      margin: 0 0 8px;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .detail-card {
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 12px;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #6b7280;
+      padding: 20px 8px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px 12px;
+    }
+
+    .detail-row-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: #9ca3af;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+
+    .detail-row-value {
+      font-size: 0.8rem;
+      color: #111827;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #4b5563;
+      margin: 4px 0;
+    }
+
+    .docs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .doc-card {
+      border-radius: 8px;
+      border: 1px dashed #d1d5db;
+      padding: 6px 8px;
+      font-size: 0.75rem;
+      background: #f9fafb;
+    }
+
+    .doc-label {
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-bottom: 2px;
+    }
+
+    .doc-filename {
+      font-size: 0.75rem;
+      color: #111827;
+      word-break: break-all;
+    }
+
+    .detail-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn-small {
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-approve {
+      background: #16a34a;
+      border-color: #15803d;
+      color: #ffffff;
+    }
+
+    .btn-approve:hover {
+      opacity: 0.92;
+    }
+
+    .btn-reject {
+      background: #ffffff;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+
+    .btn-reject:hover {
+      background: #fee2e2;
+    }
+
+    .reject-reason {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      padding: 6px 8px;
+      font-size: 0.75rem;
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    .helper-text {
+      font-size: 0.7rem;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar-main { display: none; }
+      .orders-layout { padding: 12px; }
+      .accounts-layout {
+        grid-template-columns: minmax(0, 1fr);
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body class="app">
+  <!-- SIDEBAR CHUNG – giống Orders & Households, thêm item Accounts -->
+  <aside class="sidebar-main">
+    <div class="sidebar-main-header">
+      <div class="logo-circle">FB</div>
+      <div>
+        <div class="logo-title">Foodbank</div>
+        <div class="logo-sub">Logistics Hub</div>
+      </div>
+    </div>
+
+<nav class="sidebar-main-nav">
+  <button class="nav-item" onclick="goTo('orders.html')">Đơn hàng</button>
+
+  <!-- Nhóm: Quản lý tài khoản -->
+  <div class="nav-group">
+    <button
+      class="nav-item nav-item-with-chevron"
+      id="navAccountGroupBtn"
+      type="button"
+    >
+      <span>Quản lý tài khoản</span>
+      <span class="nav-item-chevron" id="navAccountChevron">▸</span>
+    </button>
+
+    <div class="nav-subitems" id="navAccountSubmenu">
+      <button
+        class="nav-subitem nav-subitem-active"
+        onclick="goTo('accounts.html')"
+        type="button"
+      >
+        Kiểm duyệt thông tin
+      </button>
+      <button
+        class="nav-subitem"
+        onclick="goTo('households.html')"
+        type="button"
+      >
+        Hộ yếu thế
+      </button>
+      <button
+        class="nav-subitem"
+        onclick="goTo('volunteers.html')"
+        type="button"
+      >
+        Tình nguyện viên
+      </button>
+      <button
+        class="nav-subitem"
+        onclick="goTo('community.html')"
+        type="button"
+      >
+        Tổ dân phố
+      </button>
+    </div>
+  </div>
+
+  <!-- Các mục còn lại cùng level với Quản lý tài khoản -->
+  <button class="nav-item" onclick="goTo('trip.html')">
+    Trip / Tuyến đường
+  </button>
+  <button class="nav-item" onclick="goTo('campaign.html')">Chiến dịch</button>
+  <button class="nav-item" onclick="goTo('warehouse.html')">Kho tập kết</button>
+  <button class="nav-item" onclick="goTo('area.html')">Khu vực</button>
+  <button class="nav-item" onclick="goTo('support.html')">Sự cố & hỗ trợ</button>
+</nav>
+
+
+    <div class="sidebar-main-user">
+      <div class="avatar-circle">AD</div>
+      <div>
+        <div class="user-name">Admin – Vân</div>
+        <div class="user-role">Điều phối trung tâm</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN: header + layout giống Orders/Households -->
+  <main class="orders-layout">
+    <header class="orders-header">
+      <div>
+        <h1>Accounts – Pending approval</h1>
+        <p>Danh sách tài khoản Volunteer / CL / Household chờ xác thực để kích hoạt.</p>
+      </div>
+      <div class="orders-header-actions">
+        <button class="btn btn-outline">Help</button>
+      </div>
+    </header>
+
+    <!-- Lọc + List + Detail -->
+    <section class="accounts-layout">
+      <!-- LIST PANEL -->
+      <section class="accounts-list-panel">
+        <div class="accounts-list-header">
+          <div>
+            <h2 class="accounts-list-header-title">Danh sách tài khoản</h2>
+            <p class="accounts-list-header-sub">
+              Chỉ hiển thị trạng thái <strong>Pending</strong>.
+            </p>
+          </div>
+          <div class="status-pill-pending">Pending only</div>
+        </div>
+
+        <div class="accounts-filters-row">
+          <select id="filterRole">
+            <option value="all">Tất cả role</option>
+            <option value="VOLUNTEER">Volunteer</option>
+            <option value="CL">Communication Leader</option>
+            <option value="HH">Household</option>
+          </select>
+          <input id="searchInput" type="text" placeholder="Tìm theo tên / SĐT…" />
+        </div>
+
+        <div class="accounts-table-wrapper">
+          <div class="accounts-table-scroll">
+            <table class="accounts-table">
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>Họ và tên</th>
+                  <th>SĐT</th>
+                  <th>Ngày đăng ký</th>
+                  <th>Trạng thái</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="accountsTableBody">
+                <!-- JS render -->
+              </tbody>
+            </table>
+          </div>
+          <div class="accounts-table-footer">
+            <span id="tableCountLabel">0 tài khoản pending</span>
+            <span>Trang 1</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- DETAIL PANEL -->
+      <aside class="accounts-detail-panel">
+        <h2 class="detail-header-title">Chi tiết tài khoản</h2>
+        <p class="detail-header-sub">
+          Chọn một tài khoản ở danh sách bên trái để xem hồ sơ &amp; phê duyệt.
+        </p>
+
+        <div class="detail-card" id="detailCard">
+          <div class="empty-state" id="detailEmptyState">
+            Chưa có tài khoản nào được chọn.
+          </div>
+
+          <div id="detailContent" class="hidden">
+            <div class="detail-grid">
+              <div>
+                <div class="detail-row-label">Họ và tên</div>
+                <div class="detail-row-value" id="detailName"></div>
+              </div>
+              <div>
+                <div class="detail-row-label">Role</div>
+                <div class="detail-row-value">
+                  <span id="detailRoleBadge" class="badge"></span>
+                </div>
+              </div>
+              <div>
+                <div class="detail-row-label">Số điện thoại</div>
+                <div class="detail-row-value" id="detailPhone"></div>
+              </div>
+              <div>
+                <div class="detail-row-label">Ngày đăng ký</div>
+                <div class="detail-row-value" id="detailRegisteredAt"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="section-title">Hồ sơ đính kèm</div>
+              <div class="docs-grid" id="detailDocsGrid">
+                <!-- JS render -->
+              </div>
+            </div>
+
+            <div>
+              <div class="section-title">Phê duyệt</div>
+              <div class="detail-actions">
+                <button class="btn-small btn-approve" id="btnApprove">Approve</button>
+                <button class="btn-small btn-reject" id="btnReject">Reject</button>
+              </div>
+              <div style="margin-top: 8px;">
+                <textarea
+                  id="rejectReason"
+                  class="reject-reason"
+                  placeholder="Lý do từ chối (bắt buộc nếu Reject)…"></textarea>
+                <div class="helper-text">
+                  Lý do sẽ được lưu lại và (tùy backend) gửi cho người dùng.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="accounts.js"></script>
+  <script src="navigation.js"></script>
+</body>
+</html>

@@ -523,3 +523,98 @@ body {
 .page-fade.page-loaded {
   opacity: 1;
 }
+
+.timeline-panel {
+  margin-top: 12px;
+}
+
+.stop-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.stop-list-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stop-count {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.stop-table-wrapper {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.stop-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.stop-table th,
+.stop-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+
+.stop-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  text-align: left;
+}
+
+.timeline-panel {
+  margin-top: 12px;
+}
+
+/* Header nhỏ trên bảng GPS */
+.gps-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.gps-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.gps-summary {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Bảng GPS log */
+.gps-table-wrapper {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.gps-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.gps-table th,
+.gps-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+
+.gps-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  text-align: left;
+}
+

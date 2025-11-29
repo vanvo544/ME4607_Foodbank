@@ -415,20 +415,61 @@
       </div>
     </div>
 
-    <nav class="sidebar-main-nav">
-      <button class="nav-item" onclick="goTo('orders.html')">Đơn hàng</button>
-      <button class="nav-item" onclick="goTo('trip.html')">Trip / Tuyến đường</button>
-      <button class="nav-item" onclick="goTo('campaign.html')">Campaign</button>
-      <button class="nav-item" onclick="goTo('volunteers.html')">Tình nguyện viên</button>
-      <button class="nav-item" onclick="goTo('community.html')">Tổ dân phố</button>
-      <button class="nav-item nav-item-active" onclick="goTo('warehouse.html')">
-        Kho tập kết
+<nav class="sidebar-main-nav">
+  <button class="nav-item" onclick="goTo('orders.html')">Đơn hàng</button>
+
+  <!-- Nhóm: Quản lý tài khoản -->
+  <div class="nav-group">
+    <button
+      class="nav-item nav-item-with-chevron"
+      id="navAccountGroupBtn"
+      type="button"
+    >
+      <span>Quản lý tài khoản</span>
+      <span class="nav-item-chevron" id="navAccountChevron">▸</span>
+    </button>
+
+    <div class="nav-subitems" id="navAccountSubmenu">
+      <button
+        class="nav-subitem"
+        onclick="goTo('accounts.html')"
+        type="button"
+      >
+        Kiểm duyệt thông tin
       </button>
-      <button class="nav-item" onclick="goTo('area.html')">Area</button>
-      <button class="nav-item" onclick="goTo('support.html')">
-        Sự cố & hỗ trợ
+      <button
+        class="nav-subitem"
+        onclick="goTo('households.html')"
+        type="button"
+      >
+        Hộ yếu thế
       </button>
-    </nav>
+      <button
+        class="nav-subitem"
+        onclick="goTo('volunteers.html')"
+        type="button"
+      >
+        Tình nguyện viên
+      </button>
+      <button
+        class="nav-subitem"
+        onclick="goTo('community.html')"
+        type="button"
+      >
+        Tổ dân phố
+      </button>
+    </div>
+  </div>
+
+  <!-- Các mục còn lại cùng level với Quản lý tài khoản -->
+  <button class="nav-item" onclick="goTo('trip.html')">
+    Trip / Tuyến đường
+  </button>
+  <button class="nav-item" onclick="goTo('campaign.html')">Chiến dịch</button>
+  <button class="nav-item nav-subitem-active" onclick="goTo('warehouse.html')">Kho tập kết</button>
+  <button class="nav-item" onclick="goTo('area.html')">Khu vực</button>
+  <button class="nav-item" onclick="goTo('support.html')">Sự cố & hỗ trợ</button>
+</nav>
 
     <div class="sidebar-main-user">
       <div class="avatar-circle">AD</div>

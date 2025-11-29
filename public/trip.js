@@ -1,5 +1,5 @@
 // ===== Demo data cho Trip =====
-// Bạn có thể thay bằng dữ liệu thật từ backend sau này
+// Sau này bạn có thể thay bằng dữ liệu thật từ backend
 
 const trips = [
   {
@@ -15,24 +15,72 @@ const trips = [
     sortingTime: "15.08.2025 • 09:30 AM",
     deliveredAddress: "Hộ HH_9100401357 – Mai Ánh Hồng, Q. Thủ Đức",
     deliveredTime: "ETA 15.08.2025 • 10:45 AM",
-    // route points cho OpenStreetMap
+
+    // route points cho Tracking (3 mốc chính)
     routePoints: [
+      { lat: 10.8535, lng: 106.7517, label: "Kho WH_0001 – Thủ Đức" },
+      { lat: 10.8671, lng: 106.7825, label: "Điểm tập kết Linh Trung" },
+      { lat: 10.8715, lng: 106.7879, label: "HH_9100401357 – Mai Ánh Hồng" },
+    ],
+
+    // GPS log: cứ 2 phút một điểm
+    gpsLogs: [
       {
+        seq: 1,
+        time: "15.08.2025 • 09:10",
         lat: 10.8535,
         lng: 106.7517,
-        label: "Kho WH_0001 – Thủ Đức",
+        address: "Kho WH_0001, P. Linh Trung, TP. Thủ Đức",
+        speed: 0,
+        status: "Đang lấy hàng",
       },
       {
+        seq: 2,
+        time: "15.08.2025 • 09:12",
+        lat: 10.8560,
+        lng: 106.7565,
+        address: "QL1A, P. Linh Trung, TP. Thủ Đức",
+        speed: 25,
+        status: "Đang di chuyển",
+      },
+      {
+        seq: 3,
+        time: "15.08.2025 • 09:14",
+        lat: 10.8605,
+        lng: 106.7650,
+        address: "Cầu vượt Linh Xuân",
+        speed: 18,
+        status: "Đang di chuyển (kẹt nhẹ)",
+      },
+      {
+        seq: 4,
+        time: "15.08.2025 • 09:16",
         lat: 10.8671,
         lng: 106.7825,
-        label: "Điểm tập kết Linh Trung",
+        address: "Điểm tập kết Linh Trung",
+        speed: 0,
+        status: "Đã đến điểm tập kết",
       },
       {
+        seq: 5,
+        time: "15.08.2025 • 09:18",
+        lat: 10.8688,
+        lng: 106.7842,
+        address: "Đường số 5, Linh Trung",
+        speed: 22,
+        status: "Đang di chuyển",
+      },
+      {
+        seq: 6,
+        time: "15.08.2025 • 09:20",
         lat: 10.8715,
         lng: 106.7879,
-        label: "HH_9100401357 – Mai Ánh Hồng",
+        address: "HH_9100401357 – Mai Ánh Hồng, Q. Thủ Đức",
+        speed: 5,
+        status: "Đang giao",
       },
     ],
+
     progress: 0.6,
   },
   {
@@ -49,20 +97,55 @@ const trips = [
     deliveredAddress: "HH_9100402000 – Trần Văn Hùng, Q.4",
     deliveredTime: "15.08.2025 • 08:05 AM",
     routePoints: [
+      { lat: 10.7626, lng: 106.7083, label: "Kho WH_0002 – Quận 4" },
+      { lat: 10.7639, lng: 106.7035, label: "Điểm trung chuyển P.8, Q.4" },
+      { lat: 10.767, lng: 106.7065, label: "HH_9100402000 – Trần Văn Hùng" },
+    ],
+    gpsLogs: [
       {
+        seq: 1,
+        time: "15.08.2025 • 07:15",
         lat: 10.7626,
         lng: 106.7083,
-        label: "Kho WH_0002 – Quận 4",
+        address: "Kho WH_0002, Quận 4",
+        speed: 0,
+        status: "Đã lấy hàng",
       },
       {
+        seq: 2,
+        time: "15.08.2025 • 07:17",
+        lat: 10.7630,
+        lng: 106.7065,
+        address: "Đường Khánh Hội, Q.4",
+        speed: 20,
+        status: "Đang di chuyển",
+      },
+      {
+        seq: 3,
+        time: "15.08.2025 • 07:19",
         lat: 10.7639,
         lng: 106.7035,
-        label: "Điểm trung chuyển P.8, Q.4",
+        address: "Điểm trung chuyển P.8, Q.4",
+        speed: 0,
+        status: "Đã đến điểm trung chuyển",
       },
       {
+        seq: 4,
+        time: "15.08.2025 • 07:21",
+        lat: 10.7655,
+        lng: 106.7048,
+        address: "Đường Hoàng Diệu, Q.4",
+        speed: 18,
+        status: "Đang di chuyển",
+      },
+      {
+        seq: 5,
+        time: "15.08.2025 • 07:23",
         lat: 10.767,
         lng: 106.7065,
-        label: "HH_9100402000 – Trần Văn Hùng",
+        address: "HH_9100402000 – Trần Văn Hùng, Q.4",
+        speed: 3,
+        status: "Đã giao xong",
       },
     ],
     progress: 1.0,
@@ -81,21 +164,21 @@ const trips = [
     deliveredAddress: "HH_9100508888 – Nguyễn Văn B, Bình Tân",
     deliveredTime: "01.09.2025 • 03:00 PM",
     routePoints: [
+      { lat: 10.765, lng: 106.603, label: "Kho WH_0003 – Bình Tân" },
+      { lat: 10.7659, lng: 106.6195, label: "Điểm tập kết Bình Tân" },
+      { lat: 10.77, lng: 106.63, label: "HH_9100508888 – Nguyễn Văn B" },
+    ],
+    gpsLogs: [
       {
+        seq: 1,
+        time: "01.09.2025 • 02:00",
         lat: 10.765,
         lng: 106.603,
-        label: "Kho WH_0003 – Bình Tân",
+        address: "Kho WH_0003, Bình Tân",
+        speed: 0,
+        status: "Dự kiến xuất phát",
       },
-      {
-        lat: 10.7659,
-        lng: 106.6195,
-        label: "Điểm tập kết Bình Tân",
-      },
-      {
-        lat: 10.77,
-        lng: 106.63,
-        label: "HH_9100508888 – Nguyễn Văn B",
-      },
+      // ... thêm các điểm dự kiến khác nếu cần
     ],
     progress: 0.1,
   },
@@ -103,6 +186,7 @@ const trips = [
 
 let map;
 let mapLayer;
+let currentTrip = null; // để biết đang xem Trip nào
 
 // ===== Khởi tạo map OSM =====
 function initMap() {
@@ -158,10 +242,48 @@ function prettyStatus(status) {
   return status;
 }
 
+// ===== Render GPS log trong tab Load info =====
+function renderGpsLog(trip) {
+  const tbody = document.getElementById("gpsLogTableBody");
+  if (!tbody) return;
+
+  const logs = (trip.gpsLogs || []).slice(); // copy
+  tbody.innerHTML = "";
+
+  // sort theo seq (phòng khi backend trả không theo thứ tự)
+  logs.sort((a, b) => (a.seq || 0) - (b.seq || 0));
+
+  logs.forEach((log) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${log.seq}</td>
+      <td>${log.time || ""}</td>
+      <td>${log.lat != null ? log.lat.toFixed(5) : ""}</td>
+      <td>${log.lng != null ? log.lng.toFixed(5) : ""}</td>
+      <td>${log.address || ""}</td>
+      <td>${log.speed != null ? log.speed : ""}</td>
+      <td>${log.status || ""}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const summary = document.getElementById("gpsSummary");
+  if (summary) {
+    if (!logs.length) {
+      summary.textContent = "Chưa có GPS log cho Trip này";
+    } else {
+      const first = logs[0];
+      const last = logs[logs.length - 1];
+      summary.textContent = `${logs.length} điểm GPS • từ ${first.time} đến ${last.time}`;
+    }
+  }
+}
+
 // ===== Chọn trip, cập nhật detail & map =====
 function selectTrip(id) {
   const trip = trips.find((t) => t.id === id);
   if (!trip) return;
+  currentTrip = trip;
 
   // highlight card
   document
@@ -174,7 +296,7 @@ function selectTrip(id) {
   statusSpan.textContent = prettyStatus(trip.status);
   statusSpan.className = `status-pill status-${trip.status}`;
 
-  // timeline text
+  // timeline text (3 mốc chính)
   document.getElementById("pickupAddress").textContent = trip.pickupAddress;
   document.getElementById("pickupTime").textContent = trip.pickupTime;
   document.getElementById("sortingAddress").textContent = trip.sortingAddress;
@@ -190,35 +312,81 @@ function selectTrip(id) {
   document.getElementById("detailDistance").textContent =
     trip.distanceKm + " km";
 
-  // map
-  updateMap(trip);
+  // Load info = GPS log table
+  renderGpsLog(trip);
+
+  // Map: xem tab nào đang active để quyết định mode
+  const activeTab = document.querySelector(".timeline-tabs .tab.tab-active");
+  const mode =
+    activeTab && activeTab.dataset.tab === "load" ? "load" : "tracking";
+
+  updateMap(trip, mode);
 }
 
-function updateMap(trip) {
-  mapLayer.clearLayers();
+// ===== Cập nhật map theo mode =====
+// mode = "tracking"  => routePoints + polyline
+// mode = "load"      => tất cả gpsLogs là chấm tròn
+function updateMap(trip, mode = "tracking") {
+  if (!map || !mapLayer || !trip) return;
 
+  mapLayer.clearLayers();
   const latlngs = [];
 
-  (trip.routePoints || []).forEach((pt, idx) => {
-    const latlng = [pt.lat, pt.lng];
-    latlngs.push(latlng);
+  if (mode === "load" && trip.gpsLogs && trip.gpsLogs.length) {
+    // Vẽ từng điểm GPS log
+    const logs = trip.gpsLogs.slice().sort((a, b) => (a.seq || 0) - (b.seq || 0));
 
-    L.marker(latlng)
-      .addTo(mapLayer)
-      .bindPopup(
-        `<b>${idx === 0 ? "Warehouse" : idx === latlngs.length - 1 ? "Household" : "Checkpoint"}</b><br/>${pt.label}`
-      );
-  });
+    logs.forEach((log) => {
+      if (log.lat == null || log.lng == null) return;
+      const latlng = [log.lat, log.lng];
+      latlngs.push(latlng);
 
-  if (latlngs.length > 1) {
-    L.polyline(latlngs, {
-      color: "#2563eb",
-      weight: 4,
-    }).addTo(mapLayer);
+      // Một log = một chấm tròn
+      L.circleMarker(latlng)
+        .addTo(mapLayer)
+        .bindPopup(
+          `<b>${log.time || ""}</b><br/>${log.address || ""}<br/>Tốc độ: ${
+            log.speed != null ? log.speed + " km/h" : "N/A"
+          }<br/>${log.status || ""}`
+        );
+    });
 
-    map.fitBounds(latlngs, { padding: [20, 20] });
-  } else if (latlngs.length === 1) {
-    map.setView(latlngs[0], 13);
+    // Fit bounds theo toàn bộ điểm GPS
+    if (latlngs.length > 1) {
+      map.fitBounds(latlngs, { padding: [20, 20] });
+    } else if (latlngs.length === 1) {
+      map.setView(latlngs[0], 15);
+    }
+  } else {
+    // Tracking mode: vẽ 3 điểm chính + polyline
+    (trip.routePoints || []).forEach((pt, idx, arr) => {
+      if (pt.lat == null || pt.lng == null) return;
+      const latlng = [pt.lat, pt.lng];
+      latlngs.push(latlng);
+
+      L.marker(latlng)
+        .addTo(mapLayer)
+        .bindPopup(
+          `<b>${
+            idx === 0
+              ? "Warehouse"
+              : idx === arr.length - 1
+              ? "Household"
+              : "Checkpoint"
+          }</b><br/>${pt.label}`
+        );
+    });
+
+    if (latlngs.length > 1) {
+      L.polyline(latlngs, {
+        color: "#2563eb",
+        weight: 4,
+      }).addTo(mapLayer);
+
+      map.fitBounds(latlngs, { padding: [20, 20] });
+    } else if (latlngs.length === 1) {
+      map.setView(latlngs[0], 13);
+    }
   }
 }
 
@@ -237,7 +405,7 @@ function applyFilters() {
       t.id.toLowerCase().includes(searchText) ||
       (t.volunteer && t.volunteer.toLowerCase().includes(searchText));
 
-    const matchStatus =
+  const matchStatus =
       statusFilter === "ALL" ? true : t.status === statusFilter;
 
     return matchSearch && matchStatus;
@@ -256,21 +424,56 @@ document.addEventListener("DOMContentLoaded", () => {
   if (trips.length > 0) selectTrip(trips[0].id);
 
   // search
-  document.getElementById("tripSearch").addEventListener("input", applyFilters);
+  const searchInput = document.getElementById("tripSearch");
+  if (searchInput) {
+    searchInput.addEventListener("input", applyFilters);
+  }
 
   // chips status
   document.querySelectorAll(".chip").forEach((chip) => {
     chip.addEventListener("click", () => {
-      document.querySelectorAll(".chip").forEach((c) =>
-        c.classList.remove("chip-active")
-      );
+      document
+        .querySelectorAll(".chip")
+        .forEach((c) => c.classList.remove("chip-active"));
       chip.classList.add("chip-active");
       applyFilters();
     });
   });
 
-  // Nút Add trip chỉ demo
-  document.getElementById("btnAddTrip").addEventListener("click", () => {
-    alert("Demo: nút này sau này sẽ bật form tạo Trip mới.");
+  // Tabs Tracking / Load info
+  const tabButtons = document.querySelectorAll(".timeline-tabs .tab");
+  const trackingPanel = document.getElementById("trackingPanel");
+  const loadPanel = document.getElementById("loadInfoPanel");
+
+  tabButtons.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      tabButtons.forEach((t) => t.classList.remove("tab-active"));
+      tab.classList.add("tab-active");
+
+      if (!trackingPanel || !loadPanel) return;
+
+      const tabName = tab.dataset.tab;
+      if (tabName === "load") {
+        trackingPanel.style.display = "none";
+        loadPanel.style.display = "block";
+      } else {
+        trackingPanel.style.display = "block";
+        loadPanel.style.display = "none";
+      }
+
+      // đổi mode map theo tab
+      if (currentTrip) {
+        const mode = tabName === "load" ? "load" : "tracking";
+        updateMap(currentTrip, mode);
+      }
+    });
   });
+
+  // Nút Add trip chỉ demo
+  const btnAddTrip = document.getElementById("btnAddTrip");
+  if (btnAddTrip) {
+    btnAddTrip.addEventListener("click", () => {
+      alert("Demo: nút này sau này sẽ bật form tạo Trip mới.");
+    });
+  }
 });

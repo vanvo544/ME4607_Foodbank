@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- CSS giao diện -->
+   <link rel="stylesheet" href="orders.css" />
   <link rel="stylesheet" href="trip.css" />
 
   <!-- Leaflet (OpenStreetMap) -->
@@ -28,37 +29,61 @@
     </div>
   </div>
 
-  <nav class="sidebar-main-nav">
-    <button class="nav-item" onclick="goTo('orders.html')">
-      Đơn hàng
+<nav class="sidebar-main-nav">
+  <button class="nav-item" onclick="goTo('orders.html')">Đơn hàng</button>
+
+  <!-- Nhóm: Quản lý tài khoản -->
+  <div class="nav-group">
+    <button
+      class="nav-item nav-item-with-chevron"
+      id="navAccountGroupBtn"
+      type="button"
+    >
+      <span>Quản lý tài khoản</span>
+      <span class="nav-item-chevron" id="navAccountChevron">▸</span>
     </button>
 
-    <button class="nav-item nav-item-active" onclick="goTo('trip.html')">
-      Trip / Tuyến đường
-    </button>
+    <div class="nav-subitems" id="navAccountSubmenu">
+      <button
+        class="nav-subitem"
+        onclick="goTo('accounts.html')"
+        type="button"
+      >
+        Kiểm duyệt thông tin
+      </button>
+      <button
+        class="nav-subitem"
+        onclick="goTo('households.html')"
+        type="button"
+      >
+        Hộ yếu thế
+      </button>
+      <button
+        class="nav-subitem"
+        onclick="goTo('volunteers.html')"
+        type="button"
+      >
+        Tình nguyện viên
+      </button>
+      <button
+        class="nav-subitem"
+        onclick="goTo('community.html')"
+        type="button"
+      >
+        Tổ dân phố
+      </button>
+    </div>
+  </div>
 
-    <button class="nav-item" onclick="goTo('campaign.html')">
-      Campaign
-    </button>
-
-    <button class="nav-item" onclick="goTo('volunteers.html')">
-      Tình nguyện viên
-    </button>
-
-    <button class="nav-item" onclick="goTo('community.html')">
-      Tổ dân phố
-    </button>
-
-    <button class="nav-item" onclick="goTo('warehouse.html')">
-      Kho tập kết
-    </button>
-    <button class="nav-item" onclick="goTo('area.html')">Area</button>
-
-    <button class="nav-item" onclick="goTo('support.html')">
-      Sự cố & hỗ trợ
-    </button>
-
-  </nav>
+  <!-- Các mục còn lại cùng level với Quản lý tài khoản -->
+  <button class="nav-item nav-subitem-active" onclick="goTo('trip.html')">
+    Trip / Tuyến đường
+  </button>
+  <button class="nav-item" onclick="goTo('campaign.html')">Chiến dịch</button>
+  <button class="nav-item" onclick="goTo('warehouse.html')">Kho tập kết</button>
+  <button class="nav-item" onclick="goTo('area.html')">Khu vực</button>
+  <button class="nav-item" onclick="goTo('support.html')">Sự cố & hỗ trợ</button>
+</nav>
 
   <div class="sidebar-main-user">
     <div class="avatar-circle">AD</div>
@@ -108,6 +133,8 @@
     </section>
 
     <!-- PANEL CHI TIẾT + MAP -->
+        <!-- PANEL CHI TIẾT + MAP -->
+        <!-- PANEL CHI TIẾT + MAP -->
     <section class="trip-detail">
       <!-- Thanh tiêu đề Trip -->
       <header class="trip-detail-header">
@@ -127,45 +154,75 @@
 
       <!-- Nội dung chi tiết + map -->
       <div class="trip-detail-body">
-        <!-- Cột timeline -->
+        <!-- Cột timeline + load info -->
         <div class="trip-timeline">
           <div class="timeline-tabs">
-            <button class="tab tab-active">Tracking</button>
-            <button class="tab">Load info</button>
+            <button class="tab tab-active" data-tab="tracking">Tracking</button>
+            <button class="tab" data-tab="load">Load info</button>
           </div>
 
-          <ul class="timeline-list">
-            <li class="timeline-item">
-              <div class="timeline-dot timeline-dot-primary"></div>
-              <div class="timeline-content">
-                <div class="timeline-title">Pick up</div>
-                <div id="pickupAddress" class="timeline-text"></div>
-                <div id="pickupTime" class="timeline-time"></div>
-              </div>
-            </li>
-            <li class="timeline-item">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <div class="timeline-title">In sorting centre</div>
-                <div id="sortingAddress" class="timeline-text"></div>
-                <div id="sortingTime" class="timeline-time"></div>
-              </div>
-            </li>
-            <li class="timeline-item">
-              <div class="timeline-dot"></div>
-              <div class="timeline-content">
-                <div class="timeline-title">Delivered</div>
-                <div id="deliveredAddress" class="timeline-text"></div>
-                <div id="deliveredTime" class="timeline-time"></div>
-              </div>
-            </li>
-          </ul>
+          <!-- Panel: Tracking (3 mốc chính) -->
+          <div id="trackingPanel" class="timeline-panel">
+            <ul class="timeline-list">
+              <li class="timeline-item">
+                <div class="timeline-dot timeline-dot-primary"></div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Pick up</div>
+                  <div id="pickupAddress" class="timeline-text"></div>
+                  <div id="pickupTime" class="timeline-time"></div>
+                </div>
+              </li>
+              <li class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="timeline-title">In sorting centre</div>
+                  <div id="sortingAddress" class="timeline-text"></div>
+                  <div id="sortingTime" class="timeline-time"></div>
+                </div>
+              </li>
+              <li class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="timeline-title">Delivered</div>
+                  <div id="deliveredAddress" class="timeline-text"></div>
+                  <div id="deliveredTime" class="timeline-time"></div>
+                </div>
+              </li>
+            </ul>
 
-          <div class="trip-meta">
-            <div><span>Volunteer:</span> <span id="detailVolunteer">–</span></div>
-            <div><span>Campaign:</span> <span id="detailCampaign">–</span></div>
-            <div><span>Warehouse:</span> <span id="detailWarehouse">–</span></div>
-            <div><span>Distance:</span> <span id="detailDistance">–</span></div>
+            <div class="trip-meta">
+              <div><span>Volunteer:</span> <span id="detailVolunteer">–</span></div>
+              <div><span>Campaign:</span> <span id="detailCampaign">–</span></div>
+              <div><span>Warehouse:</span> <span id="detailWarehouse">–</span></div>
+              <div><span>Distance:</span> <span id="detailDistance">–</span></div>
+            </div>
+          </div>
+
+          <!-- Panel: Load info – GPS log 2 phút/lần -->
+          <div id="loadInfoPanel" class="timeline-panel" style="display:none;">
+            <div class="gps-header">
+              <h3>Lộ trình chi tiết (GPS log)</h3>
+              <span id="gpsSummary" class="gps-summary"></span>
+            </div>
+
+            <div class="gps-table-wrapper">
+              <table class="gps-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Thời gian</th>
+                    <th>Lat</th>
+                    <th>Lng</th>
+                    <th>Địa chỉ</th>
+                    <th>Tốc độ (km/h)</th>
+                    <th>Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody id="gpsLogTableBody">
+                  <!-- JS render GPS log -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -173,12 +230,13 @@
         <div class="trip-map-wrapper">
           <div class="map-toolbar">
             <button class="map-btn map-btn-active">Map</button>
-            <!-- có thể thêm Satellite / Layers nếu cần -->
           </div>
           <div id="map" class="map"></div>
         </div>
       </div>
     </section>
+
+
   </main>
 
   <!-- Leaflet JS -->

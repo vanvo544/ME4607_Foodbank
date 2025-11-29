@@ -30,9 +30,12 @@ const demoOrders = [
     completedTime: "2025-03-01 08:05",
     proofPickupUrl: "https://example.org/proofs/1248F9A0-pickup.jpg",
     proofDropoffUrl: "https://example.org/proofs/1248F9A0-dropoff.jpg",
+    // optional: loại xác nhận (nếu sau này có thêm field)
+    proofPickupType: "Ảnh minh chứng",
+    proofDropoffType: "Ảnh minh chứng",
 
     pickupLocation: "WH_0002 – Kho Quận 4, TP.HCM",
-    dropoffLocation: "Hộ Trần Văn Hùng (HH_9100402000)"
+    dropoffLocation: "Hộ Trần Văn Hùng (HH_9100402000)",
   },
   {
     id: "#25ACDB12",
@@ -64,7 +67,7 @@ const demoOrders = [
     proofDropoffUrl: "",
 
     pickupLocation: "WH_0001 – Kho Thủ Đức, TP.HCM",
-    dropoffLocation: "Hộ Mai Ánh Hồng (HH_9100401357)"
+    dropoffLocation: "Hộ Mai Ánh Hồng (HH_9100401357)",
   },
   {
     id: "#9980F145",
@@ -96,7 +99,7 @@ const demoOrders = [
     proofDropoffUrl: "",
 
     pickupLocation: "WH_0003 – Kho Bình Tân, TP.HCM",
-    dropoffLocation: "Hộ Nguyễn Văn B (HH_9100508888)"
+    dropoffLocation: "Hộ Nguyễn Văn B (HH_9100508888)",
   },
   {
     id: "#25SHDB3",
@@ -128,8 +131,8 @@ const demoOrders = [
     proofDropoffUrl: "",
 
     pickupLocation: "WH_0002 – Kho Quận 4, TP.HCM",
-    dropoffLocation: "Hộ Lê Văn C (HH_9100507777)"
-  }
+    dropoffLocation: "Hộ Lê Văn C (HH_9100507777)",
+  },
 ];
 
 // ===== Render list Orders =====
@@ -142,9 +145,8 @@ function renderOrders(list) {
     tr.innerHTML = `
       <td>
         <span class="order-id" data-order-id="${o.id}">${o.id}</span>
-
+      </td>
       <td>${o.volunteer || '<span class="household-sub">Chưa gán</span>'}</td>
-            </td>
       <td>${o.campaign}</td>
       <td>
         ${o.householdId}
@@ -174,11 +176,22 @@ function openOrderDetail(orderId) {
 
   const modal = document.getElementById("orderDetailModal");
   const title = document.getElementById("orderDetailTitle");
-  const table = document.getElementById("orderDetailTable");
+
   const summaryGrid = document.getElementById("orderSummaryGrid");
   const pickupLocationEl = document.getElementById("pickupLocation");
   const dropoffLocationEl = document.getElementById("dropoffLocation");
   const logsList = document.getElementById("orderLogsList");
+
+  const proofPickupImg = document.getElementById("proofPickupImg");
+  const proofDropoffImg = document.getElementById("proofDropoffImg");
+  const proofPickupPlaceholder = document.getElementById(
+    "proofPickupPlaceholder"
+  );
+  const proofDropoffPlaceholder = document.getElementById(
+    "proofDropoffPlaceholder"
+  );
+  const proofPickupMeta = document.getElementById("proofPickupMeta");
+  const proofDropoffMeta = document.getElementById("proofDropoffMeta");
 
   title.textContent = `Order detail – ${order.id}`;
 
@@ -202,7 +215,9 @@ function openOrderDetail(orderId) {
     div.className = "summary-item";
     div.innerHTML = `
       <div class="summary-label">${label}</div>
-      <div class="summary-value">${value != null && value !== "" ? value : "-"}</div>
+      <div class="summary-value">${
+        value != null && value !== "" ? value : "-"
+      }</div>
     `;
     summaryGrid.appendChild(div);
   });
@@ -239,19 +254,60 @@ function openOrderDetail(orderId) {
     logsList.appendChild(li);
   });
 
-  /* 4. Bảng all fields */
-  table.innerHTML = "";
-  const rows = [  ];
+  /* 4. Minh chứng giao nhận */
+  function fillProof({
+    url,
+    time,
+    type,
+    imgEl,
+    placeholderEl,
+    metaEl,
+    emptyText,
+  }) {
+    if (!imgEl || !placeholderEl || !metaEl) return;
 
-  rows.forEach(([label, value]) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="detail-label">${label}</td>
-      <td class="detail-value">${value}</td>
-    `;
-    table.appendChild(tr);
+    if (url) {
+      imgEl.src = url;
+      imgEl.classList.remove("hidden");
+      placeholderEl.classList.add("hidden");
+
+      const timeText = time || "-";
+      const typeText = type || "Ảnh minh chứng";
+
+      metaEl.innerHTML = `
+        <span>Thời gian: ${timeText}</span>
+        <span>Loại xác nhận: ${typeText}</span>
+      `;
+    } else {
+      imgEl.src = "";
+      imgEl.classList.add("hidden");
+      placeholderEl.classList.remove("hidden");
+      metaEl.innerHTML = `<span>${emptyText}</span>`;
+    }
+  }
+
+  fillProof({
+    url: order.proofPickupUrl,
+    time: order.pickupedTime || order.acceptedTime || order.createdTime,
+    type: order.proofPickupType,
+    imgEl: proofPickupImg,
+    placeholderEl: proofPickupPlaceholder,
+    metaEl: proofPickupMeta,
+    emptyText: "Chưa có minh chứng pickup",
   });
 
+  fillProof({
+    url: order.proofDropoffUrl,
+    time: order.completedTime || order.delivery || order.eta,
+    type: order.proofDropoffType,
+    imgEl: proofDropoffImg,
+    placeholderEl: proofDropoffPlaceholder,
+    metaEl: proofDropoffMeta,
+    emptyText: "Chưa có minh chứng dropoff",
+  });
+
+  /* 5. Bảng all fields */
+ 
   modal.classList.remove("hidden");
 }
 
@@ -346,14 +402,24 @@ document.addEventListener("DOMContentLoaded", () => {
   updateStatusCounts();
   renderOrders(demoOrders); // chỉ render list, không mở modal
 
-  document.getElementById("orderSearch").addEventListener("input", applyFilters);
-  document.getElementById("filterStatus").addEventListener("change", applyFilters);
-  document.getElementById("filterCampaign").addEventListener("change", applyFilters);
+  document
+    .getElementById("orderSearch")
+    .addEventListener("input", applyFilters);
+  document
+    .getElementById("filterStatus")
+    .addEventListener("change", applyFilters);
+  document
+    .getElementById("filterCampaign")
+    .addEventListener("change", applyFilters);
   document
     .getElementById("filterWarehouse")
     .addEventListener("change", applyFilters);
-  document.getElementById("btnApplyFilter").addEventListener("click", applyFilters);
-  document.getElementById("btnClearFilter").addEventListener("click", clearFilters);
+  document
+    .getElementById("btnApplyFilter")
+    .addEventListener("click", applyFilters);
+  document
+    .getElementById("btnClearFilter")
+    .addEventListener("click", clearFilters);
 
   document.querySelectorAll(".status-chip").forEach((chip) => {
     chip.addEventListener("click", () => {

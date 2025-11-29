@@ -866,4 +866,88 @@ body {
   min-height: 480px;
 }
 
+/* ===== Nhóm Quản lý tài khoản (menu con trong sidebar) ===== */
+.nav-group {
+  margin-bottom: 4px;
+}
 
+.nav-item-with-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-item-chevron {
+  font-size: 11px;
+  opacity: 0.7;
+  transition: transform 0.15s ease;
+}
+
+.nav-chevron-open {
+  transform: rotate(90deg);
+}
+
+/* Container submenu */
+.nav-subitems {
+  display: none;
+  padding-left: 12px;
+  margin-top: 2px;
+  border-left: 1px solid rgba(148, 163, 184, 0.45);
+}
+
+.nav-subitems-open {
+  display: block;
+}
+
+/* Nút trong submenu */
+.nav-subitem {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 6px 10px;
+  margin: 1px 0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+.nav-subitem:hover {
+  background: rgba(15, 23, 42, 0.7);
+  color: #f9fafb;
+}
+
+/* Active trong submenu – kiểu giống nav-item-active */
+.nav-subitem-active {
+  background: #facc15;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* Sticky header + pagination cho tất cả bảng */
+.orders-table-wrapper.sticky-pagination {
+  max-height: calc(100vh - 100px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.orders-table-wrapper.sticky-pagination .orders-table-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.orders-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background-color: #f9fafb;
+}
+
+.orders-table-wrapper.sticky-pagination .pagination {
+  position: sticky;
+  bottom: 0;
+  background-color: #ffffff;
+}

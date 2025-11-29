@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hộ yếu thế – Foodbank Logistics Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Dùng chung CSS với Orders -->
+  <link rel="stylesheet" href="orders.css" />
+
+  <style>
+    .hidden {
+      display: none !important;
+    }
+
+    /* Sticky header + pagination */
+    .orders-table-wrapper.sticky-pagination {
+      max-height: calc(100vh - 100px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .orders-table-wrapper.sticky-pagination .orders-table-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+
+    .orders-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background-color: #f9fafb;
+    }
+
+    .orders-table-wrapper.sticky-pagination .pagination {
+      position: sticky;
+      bottom: 0;
+      background-color: #ffffff;
+    }
+
+    /* HH_ID giống Order ID: pointer + in đậm, màu chữ đen */
+    .orders-table .household-id {
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .household-sub {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .status-Active {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+
+    .status-Inactive {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    /* ===== Modal / detail layout – giống Orders ===== */
+    .modal-root {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+    }
+
+    .modal-dialog {
+      position: relative;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+      max-width: 900px;
+      width: 100%;
+      max-height: 80vh;
+      overflow: auto;
+      padding: 20px 24px 16px;
+      z-index: 51;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      border: none;
+      background: transparent;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    .modal-body {
+      margin-top: 4px;
+    }
+
+    .modal-section-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .modal-subtitle {
+      font-size: 13px;
+      font-weight: 500;
+      margin: 8px 0 4px;
+    }
+
+    .modal-divider {
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin: 10px 0 6px;
+    }
+
+    .order-detail-layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+      margin-bottom: 8px;
+    }
+
+    .order-summary {
+      flex: 2;
+      min-width: 350px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 16px;
+      margin-bottom: 6px;
+    }
+
+    .summary-item {
+      font-size: 13px;
+    }
+
+    .summary-label {
+      color: #111827;
+      font-weight: 500;
+      margin-bottom: 3px;
+    }
+
+    .summary-value {
+      color: #6b7280;
+      font-weight: 480;
+      word-break: break-word;
+    }
+
+    .order-locations {
+      margin-top: 6px;
+      font-size: 13px;
+    }
+
+    .location-row {
+      display: flex;
+      margin-bottom: 3px;
+    }
+
+    .location-label {
+      width: 100px;
+      color: #4b5563;
+      flex-shrink: 0;
+    }
+
+    .location-value {
+      flex: 1;
+      color: #111827;
+      word-break: break-word;
+    }
+
+    .order-meta {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .meta-list {
+      margin: 4px 0 0;
+      padding: 0;
+      list-style: none;
+      font-size: 13px;
+    }
+
+    .meta-item {
+      display: flex;
+      margin-bottom: 6px;
+    }
+
+    .meta-label {
+      width: 80px;
+      color: #4b5563;
+      flex-shrink: 0;
+    }
+
+    .meta-value {
+      flex: 1;
+      color: #111827;
+      word-break: break-word;
+    }
+
+    .modal-detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .modal-detail-table tr:nth-child(odd) {
+      background-color: #f9fafb;
+    }
+
+    .modal-detail-table td {
+      padding: 4px 8px;
+      vertical-align: top;
+    }
+
+    .modal-detail-table thead th {
+      padding: 4px 8px;
+      text-align: left;
+      font-weight: 500;
+      color: #4b5563;
+      border-bottom: 1px solid #e5e7eb;
+      background-color: #f9fafb;
+    }
+
+    .detail-label {
+      width: 40%;
+      font-weight: 500;
+      color: #374151;
+      white-space: nowrap;
+    }
+
+    .detail-value {
+      width: 60%;
+      color: #111827;
+      word-break: break-word;
+    }
+
+    .detail-actions {
+      padding: 14px 14px;
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .survey-history-desc {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .history-table tbody tr:hover {
+      background-color: #eef2ff;
+      cursor: pointer;
+    }
+
+    .history-table tbody tr.history-selected {
+      background-color: #dbeafe !important;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar-main {
+        display: none;
+      }
+
+      .orders-layout {
+        padding: 12px;
+      }
+
+      .filters-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .orders-table {
+        font-size: 0.75rem;
+      }
+
+      .order-detail-layout {
+        flex-direction: column;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar-main">
+    <div class="sidebar-main-header">
+      <div class="logo-circle">FB</div>
+      <div>
+        <div class="logo-title">Foodbank</div>
+        <div class="logo-sub">Logistics Hub</div>
+      </div>
+    </div>
+
+<nav class="sidebar-main-nav">
+  <button class="nav-item" onclick="goTo('orders.html')">Đơn hàng</button>
+
+  <!-- Nhóm: Quản lý tài khoản -->
+  <div class="nav-group">
+    <button
+      class="nav-item nav-item-with-chevron"
+      id="navAccountGroupBtn"
+      type="button"
+    >
+      <span>Quản lý tài khoản</span>
+      <span class="nav-item-chevron" id="navAccountChevron">▸</span>
+    </button>
+
+    <div class="nav-subitems" id="navAccountSubmenu">
+      <button
+        class="nav-subitem"
+        onclick="goTo('accounts.html')"
+        type="button"
+      >
+        Kiểm duyệt thông tin
+      </button>
+      <button
+        class="nav-subitem nav-subitem-active"
+        onclick="goTo('households.html')"
+        type="button"
+      >
+        Hộ yếu thế
+      </button>
+      <button
+        class="nav-subitem"
+        onclick="goTo('volunteers.html')"
+        type="button"
+      >
+        Tình nguyện viên
+      </button>
+      <button
+        class="nav-subitem"
+        onclick="goTo('community.html')"
+        type="button"
+      >
+        Tổ dân phố
+      </button>
+    </div>
+  </div>
+
+  <!-- Các mục còn lại cùng level với Quản lý tài khoản -->
+  <button class="nav-item" onclick="goTo('trip.html')">
+    Trip / Tuyến đường
+  </button>
+  <button class="nav-item" onclick="goTo('campaign.html')">Chiến dịch</button>
+  <button class="nav-item" onclick="goTo('warehouse.html')">Kho tập kết</button>
+  <button class="nav-item" onclick="goTo('area.html')">Khu vực</button>
+  <button class="nav-item" onclick="goTo('support.html')">Sự cố & hỗ trợ</button>
+</nav>
+
+    <div class="sidebar-main-user">
+      <div class="avatar-circle">AD</div>
+      <div>
+        <div class="user-name">Admin – Vân</div>
+        <div class="user-role">Điều phối trung tâm</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="orders-layout">
+    <header class="orders-header">
+      <div>
+        <h1>Hộ yếu thế</h1>
+        <p>Quản lý danh sách hộ gia đình yếu thế để phân bổ đơn hàng & kiểm tra trùng SDT/CCCD.</p>
+      </div>
+      <div class="orders-header-actions">
+        <button class="btn btn-outline">Help</button>
+        <button class="btn btn-outline">Export</button>
+        <button class="btn btn-primary" id="btnAddHousehold">+ Thêm hộ yếu thế</button>
+      </div>
+    </header>
+
+    <!-- FILTERS -->
+    <section class="orders-filters">
+      <div class="filters-row">
+        <div class="filter-group">
+          <div class="search-wrapper">
+            <input
+              id="householdSearch"
+              class="input search-input"
+              placeholder="Search by HH_ID, chủ hộ, SĐT, địa chỉ…"
+            />
+          </div>
+        </div>
+
+        <div class="filter-group filter-group-selects">
+          <select id="householdFilterStatus" class="input">
+            <option value="">All status</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <button class="btn btn-outline" id="btnHouseholdClearFilter">Clear</button>
+          <button class="btn btn-outline" id="btnHouseholdApplyFilter">Filters</button>
+        </div>
+      </div>
+
+      <div class="status-chips-row">
+        <button class="status-chip status-chip-active" data-status="">
+          All households <span class="chip-count" id="hhCountAll">0</span>
+        </button>
+        <button class="status-chip" data-status="Active">
+          Active <span class="chip-count" id="hhCountActive">0</span>
+        </button>
+        <button class="status-chip" data-status="Inactive">
+          Inactive <span class="chip-count" id="hhCountInactive">0</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- TABLE -->
+    <section class="orders-table-wrapper sticky-pagination">
+      <div class="orders-table-scroll">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>HH_ID</th>
+              <th>Chủ hộ</th>
+              <th>SĐT</th>
+              <th>Địa chỉ</th>
+              <th>Nhân khẩu</th>
+              <th>Nhóm dễ tổn thương</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="householdTableBody">
+            <!-- JS render -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <button class="page-btn" disabled>Previous</button>
+        <button class="page-number page-number-active">1</button>
+        <button class="page-number">2</button>
+        <button class="page-number">3</button>
+        <button class="page-btn">Next</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL Household detail + edit -->
+  <div id="householdDetailModal" class="modal-root hidden">
+    <div class="modal-backdrop" id="householdDetailBackdrop"></div>
+    <div class="modal-dialog">
+      <div class="modal-header">
+  <div class="modal-title" id="householdDetailTitle">Household detail</div>
+
+  <!-- 2 nút nằm ngang hàng với tiêu đề -->
+  <div class="detail-actions">
+    <button class="btn btn-outline btn-sm" id="householdSurveyButton">Lịch sử chỉnh sửa</button>
+    <button class="btn btn-outline btn-sm" id="householdEditButton">Edit</button>
+  </div>
+
+  <button id="householdDetailClose" class="modal-close" aria-label="Close">×</button>
+</div>
+
+      <div class="modal-body">
+        <!-- View (read-only) -->
+        <div id="householdViewSection">
+          <div class="order-detail-layout">
+            <section class="order-summary">
+  <h3 class="modal-section-title" style="margin-bottom:4px;">Household summary</h3>
+              <div id="householdSummaryGrid" class="summary-grid">
+                <!-- JS fill -->
+              </div>
+
+              <section class="order-locations">
+                <h4 class="modal-subtitle">Địa chỉ hộ</h4>
+                <div class="location-row">
+                  <div class="location-label">Địa chỉ</div>
+                  <div class="location-value" id="householdAddressValue"></div>
+                </div>
+              </section>
+            </section>
+
+            <aside class="order-meta">
+              <h3 class="modal-section-title">Thông tin thêm</h3>
+              <ul class="meta-list">
+                <li class="meta-item">
+                  <div class="meta-label">Zip code</div>
+                  <div class="meta-value" id="householdAreaValue"></div>
+                </li>
+                <li class="meta-item">
+                  <div class="meta-label">Cập nhật</div>
+                  <div class="meta-value" id="householdUpdateValue"></div>
+                </li>
+                <li class="meta-item">
+                  <div class="meta-label">Trạng thái</div>
+                  <div class="meta-value" id="householdStatusValue"></div>
+                </li>
+              </ul>
+            </aside>
+          </div>
+
+          <hr class="modal-divider" />
+          <table class="modal-detail-table" id="householdDetailTable">
+            <!-- JS fill -->
+          </table>
+        </div>
+
+        <!-- Edit / Create -->
+        <div id="householdEditSection" class="hidden">
+          <h3 class="modal-section-title" id="householdEditTitle">Chỉnh sửa hộ yếu thế</h3>
+          <div class="summary-grid-edit">
+            <div class="summary-item-edit">
+              <label class="summary-label" for="hhIdInput">HH_ID (User_ID)</label>
+              <input id="hhIdInput" class="input" placeholder="HH_9100401357" />
+            </div>
+            <div class="summary-item-edit">
+              <label class="summary-label" for="hhStatusInput">Status</label>
+              <select id="hhStatusInput" class="input">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+
+            <div class="summary-item-edit">
+              <label class="summary-label" for="hhAreaIdInput">Area_ID (Zip code)</label>
+              <input id="hhAreaIdInput" class="input" placeholder="71308" />
+            </div>
+            <div class="summary-item-edit">
+              <label class="summary-label" for="hhUpdateTimeInput">Cập nhật gần nhất</label>
+              <input id="hhUpdateTimeInput" class="input" type="datetime-local" />
+            </div>
+
+            <div class="summary-item-edit">
+              <label class="summary-label" for="hhHeadNameInput">Tên chủ hộ (Head_Name)</label>
+              <input id="hhHeadNameInput" class="input" />
+            </div>
+            <div class="summary-item-edit">
+              <label class="summary-label" for="hhPhoneInput">SĐT</label>
+              <input id="hhPhoneInput" class="input" placeholder="+8491..." />
+            </div>
+
+            <div class="summary-item-edit full-row">
+              <label class="summary-label" for="hhAddressInput">Địa chỉ nhà</label>
+              <textarea id="hhAddressInput" class="input" rows="2"></textarea>
+            </div>
+
+            <div class="summary-item-edit">
+              <label class="summary-label" for="hhMembersInput">Tổng số nhân khẩu (Number_People)</label>
+              <input id="hhMembersInput" class="input" type="number" min="0" />
+            </div>
+            <div class="summary-item-edit">
+              <label class="summary-label" for="hhChildrenInput">Số trẻ em (≤ 12 tuổi)</label>
+              <input id="hhChildrenInput" class="input" type="number" min="0" />
+            </div>
+            <div class="summary-item-edit">
+              <label class="summary-label" for="hhOlderInput">Số người già (≥ 60 tuổi)</label>
+              <input id="hhOlderInput" class="input" type="number" min="0" />
+            </div>
+            <div class="summary-item-edit">
+              <label class="summary-label" for="hhVulnerabilityInput">Nhóm dễ tổn thương</label>
+              <select id="hhVulnerabilityInput" class="input">
+                <option value="">-- Chọn --</option>
+                <option value="Lao động thu nhập thấp">Lao động thu nhập thấp</option>
+                <option value="Trẻ em">Trẻ em</option>
+                <option value="Người già">Người già</option>
+                <option value="Vùng thiên tai">Vùng thiên tai</option>
+                <option value="Khuyết tật">Khuyết tật</option>
+              </select>
+            </div>
+
+            <div class="summary-item-edit">
+              <label class="summary-label" for="hhCardNumberInput">Số CCCD (nếu có)</label>
+              <input id="hhCardNumberInput" class="input" placeholder="0790..." />
+            </div>
+            <div class="summary-item-edit">
+              <label class="summary-label" for="hhFaceUrlInput">Ảnh gương mặt / Face ID (URL)</label>
+              <input id="hhFaceUrlInput" class="input" placeholder="https://..." />
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline" id="householdEditCancel">Huỷ</button>
+            <button type="button" class="btn btn-primary" id="householdEditSave">Lưu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL lịch sử chỉnh sửa hộ yếu thế -->
+  <div id="householdSurveyModal" class="modal-root hidden">
+    <div class="modal-backdrop" id="householdSurveyBackdrop"></div>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="householdSurveyTitle">Lịch sử chỉnh sửa</div>
+        <button id="householdSurveyClose" class="modal-close" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="survey-history-desc">
+          Nhật ký các lần khảo sát / chỉnh sửa thông tin hộ yếu thế (Tổ dân phố hoặc Admin).
+          Mỗi dòng tương ứng một phiên bản dữ liệu.
+        </p>
+        <table class="modal-detail-table history-table">
+          <thead>
+            <tr>
+              <th>Phiên bản</th>
+              <th>Thời gian</th>
+              <th>Người cập nhật</th>
+              <th>Nguồn</th>
+              <th>Ghi chú</th>
+            </tr>
+          </thead>
+          <tbody id="householdSurveyTableBody">
+            <!-- JS render -->
+          </tbody>
+        </table>
+
+        <hr class="modal-divider" />
+
+        <h3 class="modal-subtitle">Chi tiết phiên bản đã chọn</h3>
+        <table class="modal-detail-table" id="householdSurveyDetailTable">
+          <!-- JS render -->
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="households.js"></script>
+  <script src="navigation.js"></script>
+</body>
+</html>

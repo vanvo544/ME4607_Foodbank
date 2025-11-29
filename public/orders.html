@@ -275,6 +275,69 @@
       word-break: break-word;
     }
 
+    /* ===== Minh chứng giao nhận ===== */
+    .order-proof {
+      margin-top: 12px;
+    }
+
+    .proof-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .proof-card {
+      flex: 0 0 180px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      padding: 8px 10px 10px;
+      font-size: 12px;
+    }
+
+    .proof-title {
+      font-weight: 600;
+      margin: 0 0 6px;
+      color: #374151;
+      font-size: 13px;
+    }
+
+    .proof-thumb {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+
+    .proof-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .proof-thumb-placeholder {
+      font-size: 12px;
+      color: #9ca3af;
+      text-align: center;
+      padding: 4px 6px;
+    }
+
+    .proof-meta {
+      margin: 0;
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    .proof-meta span {
+      display: block;
+    }
+
     @media (max-width: 900px) {
       .sidebar-main {
         display: none;
@@ -306,16 +369,61 @@
       </div>
     </div>
 
-    <nav class="sidebar-main-nav">
-      <button class="nav-item nav-item-active" onclick="goTo('orders.html')">Đơn hàng</button>
-      <button class="nav-item" onclick="goTo('trip.html')">Trip / Tuyến đường</button>
-      <button class="nav-item" onclick="goTo('campaign.html')">Campaign</button>
-      <button class="nav-item" onclick="goTo('volunteers.html')">Tình nguyện viên</button>
-      <button class="nav-item" onclick="goTo('community.html')">Tổ dân phố</button>
-      <button class="nav-item" onclick="goTo('warehouse.html')">Kho tập kết</button>
-      <button class="nav-item" onclick="goTo('area.html')">Area</button>
-      <button class="nav-item" onclick="goTo('support.html')">Sự cố & hỗ trợ</button>
-    </nav>
+<nav class="sidebar-main-nav">
+  <button class="nav-item nav-subitem-active" onclick="goTo('orders.html')">Đơn hàng</button>
+
+  <!-- Nhóm: Quản lý tài khoản -->
+  <div class="nav-group">
+    <button
+      class="nav-item nav-item-with-chevron"
+      id="navAccountGroupBtn"
+      type="button"
+    >
+      <span>Quản lý tài khoản</span>
+      <span class="nav-item-chevron" id="navAccountChevron">▸</span>
+    </button>
+
+    <div class="nav-subitems" id="navAccountSubmenu">
+      <button
+        class="nav-subitem"
+        onclick="goTo('accounts.html')"
+        type="button"
+      >
+        Kiểm duyệt thông tin
+      </button>
+      <button
+        class="nav-subitem"
+        onclick="goTo('households.html')"
+        type="button"
+      >
+        Hộ yếu thế
+      </button>
+      <button
+        class="nav-subitem"
+        onclick="goTo('volunteers.html')"
+        type="button"
+      >
+        Tình nguyện viên
+      </button>
+      <button
+        class="nav-subitem"
+        onclick="goTo('community.html')"
+        type="button"
+      >
+        Tổ dân phố
+      </button>
+    </div>
+  </div>
+
+  <!-- Các mục còn lại cùng level với Quản lý tài khoản -->
+  <button class="nav-item" onclick="goTo('trip.html')">
+    Trip / Tuyến đường
+  </button>
+  <button class="nav-item" onclick="goTo('campaign.html')">Chiến dịch</button>
+  <button class="nav-item" onclick="goTo('warehouse.html')">Kho tập kết</button>
+  <button class="nav-item" onclick="goTo('area.html')">Khu vực</button>
+  <button class="nav-item" onclick="goTo('support.html')">Sự cố & hỗ trợ</button>
+</nav>
 
     <div class="sidebar-main-user">
       <div class="avatar-circle">AD</div>
@@ -461,10 +569,35 @@
           </section>
         </div>
 
-        <hr class="modal-divider" />
-        <table class="modal-detail-table" id="orderDetailTable">
-          <!-- JS fill -->
-        </table>
+        <!-- MINH CHỨNG GIAO NHẬN -->
+        <section class="order-proof">
+          <h3 class="modal-section-title">Minh chứng giao nhận</h3>
+          <div class="proof-grid">
+            <div class="proof-card" id="proofPickupWrapper">
+              <p class="proof-title">Tại điểm nhận (pickup)</p>
+              <div class="proof-thumb">
+                <img id="proofPickupImg" alt="Minh chứng pickup" class="hidden" />
+                <div id="proofPickupPlaceholder" class="proof-thumb-placeholder">
+                  Chưa có minh chứng pickup
+                </div>
+              </div>
+              <p id="proofPickupMeta" class="proof-meta"></p>
+            </div>
+
+            <div class="proof-card" id="proofDropoffWrapper">
+              <p class="proof-title">Tại điểm giao (dropoff)</p>
+              <div class="proof-thumb">
+                <img id="proofDropoffImg" alt="Minh chứng dropoff" class="hidden" />
+                <div id="proofDropoffPlaceholder" class="proof-thumb-placeholder">
+                  Chưa có minh chứng dropoff
+                </div>
+              </div>
+              <p id="proofDropoffMeta" class="proof-meta"></p>
+            </div>
+          </div>
+        </section>
+
+
       </div>
     </div>
   </div>
