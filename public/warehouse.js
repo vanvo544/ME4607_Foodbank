@@ -1,7 +1,9 @@
-// ===== Demo data cho kho tập kết =====
-const warehouses = [
+// ===== Demo data cho kho tập kết (có thể được thay bằng API sau này) =====
+let warehouses = [
   {
     id: "WH_0001",
+    name: "Kho Thủ Đức",
+    address: "",
     district: "TP. Thủ Đức",
     area: "Area 71308",
     lat: 10.86439,
@@ -10,6 +12,8 @@ const warehouses = [
   },
   {
     id: "WH_0002",
+    name: "Kho Quận 4",
+    address: "",
     district: "Quận 4",
     area: "Area 700000",
     lat: 10.755,
@@ -18,6 +22,8 @@ const warehouses = [
   },
   {
     id: "WH_0003",
+    name: "Kho Bình Tân",
+    address: "",
     district: "Bình Tân",
     area: "Area 700500",
     lat: 10.7705,
@@ -37,7 +43,7 @@ let currentSearch = "";
 function initMap() {
   if (mapReady) return;
 
-  map = L.map("warehouseMap").setView([10.78, 106.70], 11);
+  map = L.map("warehouseMap").setView([10.78, 106.7], 11);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
@@ -59,8 +65,12 @@ function renderMarkers(data) {
 
   data.forEach((w) => {
     const marker = L.marker([w.lat, w.lng]).addTo(markerLayer);
+
+    const nameLine = w.name ? `${w.name}<br>` : "";
+    const addressLine = w.address ? `${w.address}<br>` : "";
+
     marker.bindPopup(
-      `<b>${w.id}</b><br>${w.district}<br>${w.area}<br>Status: ${w.status}`
+      `<b>#${w.id}</b><br>${nameLine}${addressLine}${w.district}<br>${w.area}<br>Status: ${w.status}`
     );
     markersById[w.id] = marker;
     bounds.push([w.lat, w.lng]);
@@ -87,8 +97,7 @@ function renderWarehouseList() {
     if (currentStatusFilter && w.status !== currentStatusFilter) return false;
 
     if (currentSearch) {
-      const text =
-        (w.id + " " + w.district + " " + w.area).toLowerCase();
+      const text = (w.id + " " + w.district + " " + w.area).toLowerCase();
       if (!text.includes(currentSearch)) return false;
     }
     return true;
@@ -109,12 +118,14 @@ function renderWarehouseList() {
       <div class="wh-card-icon">WH</div>
       <div class="wh-card-info">
         <div class="wh-card-row-top">
-          <span class="wh-card-id">${w.id}</span>
+          <span class="wh-card-id">#${w.id}</span>
           <span class="wh-status-pill ${
             w.status === "Active" ? "wh-status-active" : "wh-status-inactive"
           }">${w.status}</span>
         </div>
-        <div class="wh-card-sub">${w.district} • ${w.area}</div>
+        <div class="wh-card-sub">
+          ${w.district || "—"} • ${w.area || ""}
+        </div>
       </div>
     `;
 
@@ -147,6 +158,82 @@ function updateChipCounts() {
   ).length;
 }
 
+// ===== Drawer: mở / đóng & thêm kho mới =====
+function resetWarehouseForm() {
+  const form = document.getElementById("whForm");
+  if (!form) return;
+  form.reset();
+  // trạng thái mặc định
+  const statusSelect = document.getElementById("whStatusInput");
+  if (statusSelect) statusSelect.value = "Active";
+}
+
+function openWarehouseDrawer() {
+  const backdrop = document.getElementById("warehouseDrawer");
+  if (!backdrop) return;
+  resetWarehouseForm();
+  backdrop.classList.add("active");
+}
+
+function closeWarehouseDrawer() {
+  const backdrop = document.getElementById("warehouseDrawer");
+  if (!backdrop) return;
+  backdrop.classList.remove("active");
+}
+
+function handleWarehouseSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const id = (formData.get("id") || "").trim();
+  const name = (formData.get("name") || "").trim();
+  const district = (formData.get("district") || "").trim();
+  const area = (formData.get("area") || "").trim();
+  const address = (formData.get("address") || "").trim();
+  const latVal = parseFloat(formData.get("lat"));
+  const lngVal = parseFloat(formData.get("lng"));
+  const status = (formData.get("status") || "Active").trim() || "Active";
+
+  if (!id) {
+    alert("Vui lòng nhập Mã kho (Warehouse_ID).");
+    return;
+  }
+  if (isNaN(latVal) || isNaN(lngVal)) {
+    alert("Vui lòng nhập toạ độ Latitude / Longitude hợp lệ.");
+    return;
+  }
+
+  // Kiểm tra trùng id (đơn giản)
+  const existed = warehouses.find(
+    (w) => w.id.toLowerCase() === id.toLowerCase()
+  );
+  if (existed) {
+    if (
+      !confirm(
+        "Đã tồn tại kho với ID này. Bạn có chắc muốn thêm tiếp (có thể trùng)?"
+      )
+    ) {
+      return;
+    }
+  }
+
+  const newWarehouse = {
+    id,
+    name,
+    address,
+    district,
+    area,
+    lat: latVal,
+    lng: lngVal,
+    status,
+  };
+
+  warehouses.push(newWarehouse);
+  updateChipCounts();
+  renderWarehouseList();
+  closeWarehouseDrawer();
+}
+
 // ===== INIT =====
 document.addEventListener("DOMContentLoaded", () => {
   initMap();
@@ -170,6 +257,31 @@ document.addEventListener("DOMContentLoaded", () => {
       renderWarehouseList();
     });
   });
+
+  // Drawer events
+  const btnAddWarehouse = document.getElementById("btnAddWarehouse");
+  const drawerBackdrop = document.getElementById("warehouseDrawer");
+  const btnClose = document.getElementById("whDrawerClose");
+  const btnCancel = document.getElementById("whDrawerCancel");
+  const form = document.getElementById("whForm");
+
+  if (btnAddWarehouse) {
+    btnAddWarehouse.addEventListener("click", openWarehouseDrawer);
+  }
+  if (btnClose) btnClose.addEventListener("click", closeWarehouseDrawer);
+  if (btnCancel) btnCancel.addEventListener("click", closeWarehouseDrawer);
+
+  if (drawerBackdrop) {
+    drawerBackdrop.addEventListener("click", (e) => {
+      if (e.target === drawerBackdrop) {
+        closeWarehouseDrawer();
+      }
+    });
+  }
+
+  if (form) {
+    form.addEventListener("submit", handleWarehouseSubmit);
+  }
 
   // render lần đầu
   renderWarehouseList();

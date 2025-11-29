@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Areas – Foodbank Logistics Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Nếu có orders.css thì dùng, không có cũng không sao -->
+  <link rel="stylesheet" href="orders.css" />
+
+  <!-- CSS: sticky pagination + sticky header -->
+  <style>
+    .orders-table-wrapper.sticky-pagination {
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 100px);
+    }
+
+    .orders-table-wrapper.sticky-pagination .orders-table-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+
+    .orders-table-wrapper.sticky-pagination .pagination {
+      position: sticky;
+      bottom: 0;
+      background-color: #ffffff;
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+
+    .orders-table-wrapper.sticky-pagination .orders-table {
+      border-collapse: separate;
+      border-spacing: 1;
+      width: 80%;
+    }
+
+    .orders-table-wrapper.sticky-pagination .orders-table thead th {
+      position: sticky;
+      top: 1;
+      z-index: 3;
+      background-color: #f9fafb;
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+  </style>
+</head>
+<body class="app">
+
+  <!-- SIDEBAR CHÍNH -->
+  <aside class="sidebar-main">
+    <div class="sidebar-main-header">
+      <div class="logo-circle">FB</div>
+      <div>
+        <div class="logo-title">Foodbank</div>
+        <div class="logo-sub">Logistics Hub</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-main-nav">
+      <button class="nav-item" onclick="goTo('orders.html')">Đơn hàng</button>
+      <button class="nav-item" onclick="goTo('trip.html')">Trip / Tuyến đường</button>
+      <button class="nav-item" onclick="goTo('campaign.html')">Campaign</button>
+      <button class="nav-item" onclick="goTo('volunteers.html')">Tình nguyện viên</button>
+      <button class="nav-item" onclick="goTo('community.html')">Tổ dân phố</button>
+      <button class="nav-item" onclick="goTo('warehouse.html')">Kho tập kết</button>
+      <button class="nav-item nav-item-active" onclick="goTo('area.html')">Area</button>
+      <button class="nav-item" onclick="goTo('support.html')">Sự cố & hỗ trợ</button>
+    </nav>
+
+    <div class="sidebar-main-user">
+      <div class="avatar-circle">AD</div>
+      <div>
+        <div class="user-name">Admin – Vân</div>
+        <div class="user-role">Điều phối trung tâm</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- LAYOUT CHÍNH -->
+  <main class="orders-layout">
+    <!-- Header -->
+    <header class="orders-header">
+      <div>
+        <h1>Areas</h1>
+        <p>
+          Quản lý danh mục khu vực (phường/xã) theo mã bưu chính (Area_ID), quận/huyện,
+          địa chỉ UBND phường và toạ độ trung tâm.
+        </p>
+      </div>
+      <div class="orders-header-actions">
+        <button class="btn btn-outline">Help</button>
+        <button class="btn btn-outline">Export</button>
+        <button class="btn btn-primary">+ Thêm khu vực</button>
+      </div>
+    </header>
+
+    <!-- Filters -->
+    <section class="orders-filters">
+      <div class="filters-row">
+        <div class="filter-group">
+          <div class="search-wrapper">
+            <input
+              id="areaSearch"
+              class="input search-input"
+              placeholder="Tìm Area_ID (mã bưu chính), tên khu vực, quận/huyện…"
+            />
+          </div>
+        </div>
+
+        <div class="filter-group filter-group-selects">
+          <select id="filterDistrict" class="input">
+            <option value="">Tất cả quận/huyện</option>
+          </select>
+
+          <select id="filterZipPrefix" class="input">
+            <option value="">Tất cả mã bưu chính</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <button class="btn btn-outline" id="btnClearFilter">Clear</button>
+          <button class="btn btn-outline" id="btnApplyFilter">Filters</button>
+        </div>
+      </div>
+
+      <div class="status-chips-row" id="districtChipsRow">
+        <!-- JS render -->
+      </div>
+    </section>
+
+    <!-- Bảng + pagination -->
+    <section class="orders-table-wrapper sticky-pagination">
+      <div class="orders-table-scroll">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Area ID</th>
+              <th>Area Name</th>
+              <th>District</th>
+              <th>Address</th>
+              <th>Coordinate (lat, lng)</th>
+            </tr>
+          </thead>
+          <tbody id="areaTableBody">
+            <!-- JS render -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- pagination sẽ được JS render vào đây -->
+      <div class="pagination" id="areaPagination"></div>
+    </section>
+  </main>
+
+  <script src="area.js"></script>
+  <script src="navigation.js"></script>
+</body>
+</html>

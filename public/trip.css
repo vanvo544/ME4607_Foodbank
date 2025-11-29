@@ -259,17 +259,22 @@ body {
   font-weight: 600;
 }
 
-.status-InTransit {
+.status-Planned {
   background: #dbeafe;
   color: #1d4ed8;
 }
 
-.status-Delivered {
+.status-Completed {
   background: #dcfce7;
   color: #15803d;
 }
 
-.status-Upcoming {
+.status-InProcess {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.status-Cancelled {
   background: #fef9c3;
   color: #854d0e;
 }

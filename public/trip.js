@@ -4,7 +4,7 @@
 const trips = [
   {
     id: "#25ACDB12",
-    status: "InTransit",
+    status: "InProcess",
     volunteer: "VL_9100505678 – Nguyễn Văn An",
     campaign: "CP_2025001 – Mái ấm Nhật Hồng",
     warehouse: "WH_0001 – Kho Thủ Đức",
@@ -37,7 +37,7 @@ const trips = [
   },
   {
     id: "#1248F9A0",
-    status: "Delivered",
+    status: "Completed",
     volunteer: "VL_9100888888 – Trần Mai Hương",
     campaign: "CP_2025001 – Mái ấm Nhật Hồng",
     warehouse: "WH_0002 – Kho Quận 4",
@@ -69,7 +69,7 @@ const trips = [
   },
   {
     id: "#9980F145",
-    status: "Upcoming",
+    status: "Planned",
     volunteer: "Chưa gán",
     campaign: "CP_2025002 – Hỗ trợ mùa mưa 2025",
     warehouse: "WH_0003 – Kho Bình Tân",
@@ -151,9 +151,10 @@ function renderTripList(list) {
 }
 
 function prettyStatus(status) {
-  if (status === "InTransit") return "In-transit";
-  if (status === "Delivered") return "Delivered";
-  if (status === "Upcoming") return "Upcoming";
+  if (status === "Planned") return "Planned";
+  if (status === "InProcess") return "In Process";
+  if (status === "Completed") return "Completed";
+  if (status === "Cancelled") return "Cancelled";
   return status;
 }
 

@@ -5,66 +5,329 @@
   <title>Orders – Foodbank Logistics Hub</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- Dùng chung CSS với Area -->
   <link rel="stylesheet" href="orders.css" />
+
+  <style>
+    .hidden {
+      display: none !important;
+    }
+
+    /* Sticky header + pagination chỉ dùng cho trang Orders */
+    .orders-table-wrapper.sticky-pagination {
+      max-height: calc(100vh - 100px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .orders-table-wrapper.sticky-pagination .orders-table-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: auto;
+    }
+
+    /* Header của bảng dính trên cùng khi scroll */
+    .orders-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background-color: #f9fafb;
+    }
+
+    /* Pagination dính phía dưới khung bảng */
+    .orders-table-wrapper.sticky-pagination .pagination {
+      position: sticky;
+      bottom: 0;
+      background-color: #ffffff;
+    }
+
+    /* Order ID clickable trong bảng Orders */
+    .orders-table .order-id {
+      cursor: pointer;
+    }
+
+    /* ===== Modal chi tiết đơn hàng ===== */
+    .modal-root {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+    }
+
+    .modal-dialog {
+      position: relative;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+      max-width: 780px;
+      width: 100%;
+      max-height: 80vh;
+      overflow: auto;
+      padding: 20px 24px 16px;
+      z-index: 51;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      border: none;
+      background: transparent;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    .modal-body {
+      margin-top: 4px;
+    }
+
+    /* ===== Order detail layout ===== */
+    .order-detail-layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 25px;
+      margin-bottom: 8px;
+    }
+
+    .order-summary {
+      flex: 2;
+      min-width: 350px;
+    }
+
+    .order-logs {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .modal-section-title {
+      margin: 20px 0px 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .modal-subtitle {
+      margin: 20px 0px 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #4b5563;
+    }
+
+    .modal-divider {
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin: 10px 0 8px;
+    }
+
+    .subsection-title {
+      margin: 0 0 4px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    /* Summary grid */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 18px;
+      margin-bottom: 8px;
+    }
+
+    .summary-item {
+      font-size: 13px;
+    }
+
+    .summary-label {
+      color: #111827;
+      font-weight: 500;
+      margin-bottom: 3px;
+    }
+
+    .summary-value {
+      color: #6b7280;
+      font-weight: 480;
+      word-break: break-word;
+    }
+
+    /* Locations */
+    .order-locations {
+      margin-top: 6px;
+      font-size: 13px;
+    }
+
+    .location-row {
+      display: flex;
+      margin-bottom: 3px;
+    }
+
+    .location-label {
+      width: 90px;
+      color: #111827;
+      flex-shrink: 100;
+      font-weight: 500;
+    }
+
+    .location-value {
+      flex: 1;
+      color: #6b7280;
+      word-break: break-word;
+    }
+
+    /* Order logs timeline */
+    .order-logs-list {
+      list-style: none;
+      margin: 4px 0 10px;
+      padding: 0;
+      font-size: 13px;
+    }
+
+    .log-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+
+    .log-timeline {
+      position: relative;
+      margin-right: 8px;
+      padding-left: 4px;
+    }
+
+    .log-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 1100px;
+      background: #374151;
+    }
+
+    .log-line {
+      position: absolute;
+      top: 8px;
+      left: 6px;
+      width: 2px;
+      bottom: -6px;
+      background: #d1d5db;
+    }
+
+    .log-content {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .log-label {
+      font-weight: 500;
+      color: #111827;
+    }
+
+    .log-time {
+      color: #6b7280;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Bảng all fields trong modal */
+    .modal-detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+    }
+
+    .modal-detail-table td {
+      padding: 4px 8px;
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    .detail-label {
+      width: 40%;
+      font-weight: 500;
+      color: #374151;
+      white-space: nowrap;
+    }
+
+    .detail-value {
+      width: 60%;
+      color: #111827;
+      word-break: break-word;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar-main {
+        display: none;
+      }
+
+      .orders-layout {
+        padding: 12px;
+      }
+
+      .filters-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .orders-table {
+        font-size: 0.75rem;
+      }
+    }
+  </style>
 </head>
 <body class="app">
-
-  <!-- SIDEBAR CHÍNH -->
-    <aside class="sidebar-main">
-  <div class="sidebar-main-header">
-    <div class="logo-circle">FB</div>
-    <div>
-      <div class="logo-title">Foodbank</div>
-      <div class="logo-sub">Logistics Hub</div>
+  <!-- SIDEBAR CHUNG (giống Area) -->
+  <aside class="sidebar-main">
+    <div class="sidebar-main-header">
+      <div class="logo-circle">FB</div>
+      <div>
+        <div class="logo-title">Foodbank</div>
+        <div class="logo-sub">Logistics Hub</div>
+      </div>
     </div>
-  </div>
 
-  <nav class="sidebar-main-nav">
-    <button class="nav-item nav-item-active" onclick="goTo('orders.html')">
-      Đơn hàng
-    </button>
+    <nav class="sidebar-main-nav">
+      <button class="nav-item nav-item-active" onclick="goTo('orders.html')">Đơn hàng</button>
+      <button class="nav-item" onclick="goTo('trip.html')">Trip / Tuyến đường</button>
+      <button class="nav-item" onclick="goTo('campaign.html')">Campaign</button>
+      <button class="nav-item" onclick="goTo('volunteers.html')">Tình nguyện viên</button>
+      <button class="nav-item" onclick="goTo('community.html')">Tổ dân phố</button>
+      <button class="nav-item" onclick="goTo('warehouse.html')">Kho tập kết</button>
+      <button class="nav-item" onclick="goTo('area.html')">Area</button>
+      <button class="nav-item" onclick="goTo('support.html')">Sự cố & hỗ trợ</button>
+    </nav>
 
-    <button class="nav-item" onclick="goTo('trip.html')">
-      Trip / Tuyến đường
-    </button>
-
-    <button class="nav-item" onclick="goTo('campaign.html')">
-      Campaign
-    </button>
-
-    <button class="nav-item" onclick="goTo('volunteers.html')">
-      Tình nguyện viên
-    </button>
-
-    <button class="nav-item" onclick="goTo('community.html')">
-      Tổ dân phố
-    </button>
-
-    <button class="nav-item" onclick="goTo('warehouse.html')">
-      Kho tập kết
-    </button>
-
-    <button class="nav-item">
-      Sự cố & hỗ trợ
-    </button>
-  </nav>
-
-  <div class="sidebar-main-user">
-    <div class="avatar-circle">AD</div>
-    <div>
-      <div class="user-name">Admin – Vân</div>
-      <div class="user-role">Điều phối trung tâm</div>
+    <div class="sidebar-main-user">
+      <div class="avatar-circle">AD</div>
+      <div>
+        <div class="user-name">Admin – Vân</div>
+        <div class="user-role">Điều phối trung tâm</div>
+      </div>
     </div>
-  </div>
-</aside>
+  </aside>
 
-
-
-
-
-  <!-- LAYOUT ĐƠN HÀNG -->
+  <!-- MAIN LAYOUT -->
   <main class="orders-layout">
-    <!-- Header trên cùng -->
     <header class="orders-header">
       <div>
         <h1>Orders</h1>
@@ -77,7 +340,7 @@
       </div>
     </header>
 
-    <!-- Hàng filter, search -->
+    <!-- Filters -->
     <section class="orders-filters">
       <div class="filters-row">
         <div class="filter-group">
@@ -111,7 +374,6 @@
         </div>
       </div>
 
-      <!-- Chip đếm số lượng theo trạng thái -->
       <div class="status-chips-row">
         <button class="status-chip status-chip-active" data-status="">
           All orders <span class="chip-count" id="countAll">0</span>
@@ -128,29 +390,27 @@
       </div>
     </section>
 
-    <!-- Bảng đơn hàng -->
-    <section class="orders-table-wrapper">
-      <table class="orders-table">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Campaign</th>
-            <th>Household</th>
-            <th>Volunteer</th>
-            <th>Warehouse</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Accepted</th>
-            <th>Delivery</th>
-            <th>Completed</th>
-            <th>ETA</th>
-            <th class="col-action">Action</th>
-          </tr>
-        </thead>
-        <tbody id="orderTableBody">
-          <!-- JS render -->
-        </tbody>
-      </table>
+    <!-- Table + sticky pagination -->
+    <section class="orders-table-wrapper sticky-pagination">
+      <div class="orders-table-scroll">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Volunteer</th>
+              <th>Campaign</th>
+              <th>Household</th>
+              <th>Warehouse</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Accepted</th>
+            </tr>
+          </thead>
+          <tbody id="orderTableBody">
+            <!-- JS render -->
+          </tbody>
+        </table>
+      </div>
 
       <div class="pagination">
         <button class="page-btn" disabled>Previous</button>
@@ -162,9 +422,54 @@
     </section>
   </main>
 
+  <!-- MODAL CHI TIẾT ORDER -->
+  <div id="orderDetailModal" class="modal-root hidden">
+    <div class="modal-backdrop" id="orderDetailBackdrop"></div>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="orderDetailTitle">Order detail</div>
+        <button id="orderDetailClose" class="modal-close" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="order-detail-layout">
+          <!-- SUMMARY + LOCATIONS -->
+          <section class="order-summary">
+            <h3 class="modal-section-title">Order summary</h3>
+            <div id="orderSummaryGrid" class="summary-grid">
+              <!-- JS fill -->
+            </div>
+
+            <section class="order-locations">
+              <h4 class="modal-subtitle">Locations</h4>
+              <div class="location-row">
+                <div class="location-label">Pickup from</div>
+                <div class="location-value" id="pickupLocation">-</div>
+              </div>
+              <div class="location-row">
+                <div class="location-label">Deliver to</div>
+                <div class="location-value" id="dropoffLocation">-</div>
+              </div>
+            </section>
+          </section>
+
+          <!-- ORDER LOGS TIMELINE -->
+          <section class="order-logs">
+            <h3 class="modal-section-title">Order logs</h3>
+            <ul id="orderLogsList" class="order-logs-list">
+              <!-- JS fill -->
+            </ul>
+          </section>
+        </div>
+
+        <hr class="modal-divider" />
+        <table class="modal-detail-table" id="orderDetailTable">
+          <!-- JS fill -->
+        </table>
+      </div>
+    </div>
+  </div>
+
   <script src="orders.js"></script>
   <script src="navigation.js"></script>
-
-
 </body>
 </html>

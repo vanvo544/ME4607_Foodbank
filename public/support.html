@@ -249,7 +249,7 @@
 
     .support-sidebar-stats {
       padding: 6px 14px 10px;
-      border-top: 1px dashed #e5e7eb;
+      border-top: 2px dashed #e5e7eb;
       font-size: 0.78rem;
       color: #4b5563;
     }
@@ -330,11 +330,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
+      margin-top: 3px;
+      margin-bottom: 3px;
     }
 
     .ticket-list-header h3 {
-      margin: 0;
+      margin: 5px;
       font-size: 0.9rem;
     }
 
@@ -344,7 +345,7 @@
     }
 
     .ticket-list-scroll {
-      margin-top: 6px;
+      margin-top: 8px;
       overflow-y: auto;
       flex: 1;
       display: flex;
@@ -424,6 +425,12 @@
       color: #6b7280;
     }
 
+    .ticket-last-contact {
+      margin-top: 2px;
+      color: #9ca3af;
+      font-size: 0.74rem;
+    }
+
     .ticket-footer {
       display: flex;
       justify-content: space-between;
@@ -432,26 +439,27 @@
       color: #9ca3af;
     }
 
-    .ticket-priority {
+    /* severity pill */
+    .ticket-severity {
       padding: 1px 6px;
       border-radius: 999px;
       font-size: 0.7rem;
       font-weight: 600;
     }
 
-    .priority-high {
-      background: #fee2e2;
-      color: #b91c1c;
+    .severity-low {
+      background: #e0f2fe;
+      color: #0369a1;
     }
 
-    .priority-medium {
+    .severity-medium {
       background: #fef3c7;
       color: #92400e;
     }
 
-    .priority-low {
-      background: #e0f2fe;
-      color: #0369a1;
+    .severity-high {
+      background: #fee2e2;
+      color: #b91c1c;
     }
 
     /* Ticket detail */
@@ -471,8 +479,17 @@
       display: flex;
       justify-content: space-between;
       gap: 12px;
+      margin-top: 5px;
       margin-bottom: 8px;
-      align-items: center;
+      align-items: flex-start; /* căn trên */
+    }
+
+    .ticket-detail-header-right {
+      margin-left: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
     }
 
     .ticket-detail-title {
@@ -524,30 +541,29 @@
       color: #6b7280;
     }
 
-    .ticket-timeline {
+    /* Lịch sử trao đổi dạng chat */
+    .ticket-conversation {
       margin-top: 10px;
       border-top: 1px dashed #e5e7eb;
       padding-top: 8px;
       font-size: 0.78rem;
-    }
-
-    .timeline-entry {
-      margin-bottom: 4px;
       display: flex;
-      align-items: flex-start;
+      flex-direction: column;
       gap: 6px;
     }
 
-    .timeline-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #9ca3af;
-      margin-top: 4px;
+    .conversation-message {
+      display: flex;
+      align-items: flex-start;
     }
 
-    .timeline-text {
-      color: #4b5563;
+    .conversation-bubble {
+      max-width: 100%;
+      padding: 6px 10px;
+      border-radius: 12px;
+      background: #f3f4f6;
+      color: #374151;
+      line-height: 1.3;
     }
 
     .placeholder {
@@ -591,6 +607,7 @@
       <button class="nav-item" onclick="goTo('volunteers.html')">Tình nguyện viên</button>
       <button class="nav-item" onclick="goTo('community.html')">Tổ dân phố</button>
       <button class="nav-item" onclick="goTo('warehouse.html')">Kho tập kết</button>
+      <button class="nav-item" onclick="goTo('area.html')">Area</button>
       <button class="nav-item nav-item-active" onclick="goTo('support.html')">Sự cố & hỗ trợ</button>
     </nav>
 
@@ -656,7 +673,9 @@
         <div>
           <div class="support-main-title">
             <span id="mainTitle">Incident</span>
-            <span class="support-main-sub" id="mainSubtitle"> Ticket từ các chiến dịch & chuyến đi</span>
+            <span class="support-main-sub" id="mainSubtitle">
+              Ticket từ các chiến dịch & chuyến đi
+            </span>
           </div>
         </div>
         <div>
@@ -684,377 +703,502 @@
     </section>
   </main>
 
-  <script>
-    // Demo data
-    const incidents = [
-      {
-        id: "INC_0001",
-        status: "Open",
-        priority: "High",
-        source: "App",
-        campaignId: "CP_2025001",
-        campaignName: "Chiến dịch Mái ấm Nhật Hồng",
-        volunteerCode: "VL_910050678",
-        volunteerName: "Nguyễn Văn An",
-        createdAt: "15.08.2025 09:15",
-        title: "TNV báo khách hàng chưa nhận được quà",
-        shortMeta: "Trip #25ACDB12 – Linh Trung, Thủ Đức",
-        description:
-          "TNV báo đã giao tới nhà nhưng người nhận đi làm, chưa có ai nhận giúp. Cần gọi lại xác nhận khung giờ giao phù hợp hoặc gửi tại nhà văn hóa.",
-        channel: "In-app incident",
-        tags: ["Delivery", "Linh Trung"],
-        timeline: [
-          "09:15 – TNV Nguyễn Văn An tạo incident từ app.",
-          "09:18 – Điều phối viên tiếp nhận, liên hệ TNV.",
-        ],
-      },
-      {
-        id: "INC_0002",
-        status: "InProgress",
-        priority: "Medium",
-        source: "Hotline",
-        campaignId: "CP_2025002",
-        campaignName: "Chiến dịch Trung thu yêu thương",
-        volunteerCode: "VL_920000001",
-        volunteerName: "Lê Minh Tuấn",
-        createdAt: "16.08.2025 18:40",
-        title: "Thiếu 5 phần quà tại điểm tập kết",
-        shortMeta: "Kho WH_0002 – Quận 4",
-        description:
-          "Khi TNV nhận hàng tại kho, số lượng thực tế thiếu 5 phần so với danh sách. Cần rà soát tồn kho và cập nhật lại số lượng phân bổ.",
-        channel: "Hotline",
-        tags: ["Warehouse", "Số lượng"],
-        timeline: [
-          "18:40 – Hotline ghi nhận phản ánh.",
-          "18:45 – Kho WH_0002 xác nhận kiểm kê lại.",
-        ],
-      },
-      {
-        id: "INC_0003",
-        status: "Resolved",
-        priority: "Low",
-        source: "App",
-        campaignId: "CP_2025003",
-        campaignName: "Chiến dịch Xuân sẻ chia",
-        volunteerCode: "VL_930000001",
-        volunteerName: "Đỗ Quốc Bảo",
-        createdAt: "02.02.2025 14:05",
-        title: "Đường vào hẻm bị ngập, phải đổi lộ trình",
-        shortMeta: "An Lạc, Bình Tân",
-        description:
-          "Đường hẻm chính bị ngập do mưa lớn, TNV đề xuất đổi lộ trình giao, chia thành 2 đợt trong ngày. Đã cập nhật xong.",
-        channel: "In-app incident",
-        tags: ["Traffic", "Weather"],
-        timeline: [
-          "14:05 – TNV báo tình trạng đường ngập.",
-          "14:20 – Điều phối cập nhật lại route, chia 2 chuyến.",
-          "17:30 – Tất cả đơn đã giao xong.",
-        ],
-      },
-    ];
+<script>
+  // Demo data
+  const incidents = [
+    {
+      id: "INC_0001",
+      status: "Open",
+      severity: 2,
+      source: "App",
+      campaignId: "CP_2025001",
+      campaignName: "Chiến dịch Mái ấm Nhật Hồng",
+      volunteerCode: "VL_910050678",
+      volunteerName: "Nguyễn Văn An",
+      handlerCode: "AD_918956342",
+      handlerName: "Mỹ Vân",
+      createdAt: "15.08.2025 09:15",
+      title: "TNV báo khách hàng chưa nhận được quà",
+      shortMeta: "Trip #25ACDB12 – Linh Trung, Thủ Đức",
+      description:
+        "TNV báo đã giao tới nhà nhưng người nhận đi làm, chưa có ai nhận giúp. Cần gọi lại xác nhận khung giờ giao phù hợp hoặc gửi tại nhà văn hóa.",
+      channel: "In-app incident",
+      tags: ["Delivery", "Linh Trung"],
+      timeline: [
+        "09:15 – TNV Nguyễn Văn An: Khách chưa nhận được quà, nhà chỉ có người già.",
+        "09:18 – Điều phối viên Vân: Đã gọi cho TNV, đề xuất giao lại buổi tối.",
+      ],
+    },
+    {
+      id: "INC_0002",
+      status: "InProgress",
+      severity: 3,
+      source: "Hotline",
+      campaignId: "CP_2025002",
+      campaignName: "Chiến dịch Trung thu yêu thương",
+      volunteerCode: "VL_920000001",
+      volunteerName: "Lê Minh Tuấn",
+      handlerCode: "AD_000000002",
+      handlerName: "Văn Khánh",
+      createdAt: "16.08.2025 18:40",
+      title: "Thiếu 5 phần quà tại điểm tập kết",
+      shortMeta: "Kho WH_0002 – Quận 4",
+      description:
+        "Khi TNV nhận hàng tại kho, số lượng thực tế thiếu 5 phần so với danh sách. Cần rà soát tồn kho và cập nhật lại số lượng phân bổ.",
+      channel: "Hotline",
+      tags: ["Warehouse", "Số lượng"],
+      timeline: [
+        "18:40 – Hotline: TNV báo thiếu 5 phần quà khi nhận tại WH_0002.",
+        "18:45 – Kho: Đang kiểm kê lại tồn kho, sẽ phản hồi trong 15 phút.",
+      ],
+    },
+    {
+      id: "INC_0003",
+      status: "Resolved",
+      severity: 1,
+      source: "App",
+      campaignId: "CP_2025003",
+      campaignName: "Chiến dịch Xuân sẻ chia",
+      volunteerCode: "VL_930000001",
+      volunteerName: "Đỗ Quốc Bảo",
+      handlerCode: "AD_918956342",
+      handlerName: "Mỹ Vân",
+      createdAt: "02.02.2025 14:05",
+      title: "Đường vào hẻm bị ngập, phải đổi lộ trình",
+      shortMeta: "An Lạc, Bình Tân",
+      description:
+        "Đường hẻm chính bị ngập do mưa lớn, TNV đề xuất đổi lộ trình giao, chia thành 2 đợt trong ngày. Đã cập nhật xong.",
+      channel: "In-app incident",
+      tags: ["Traffic", "Weather"],
+      timeline: [
+        "14:05 – TNV: Hẻm chính ngập sâu, xe không vào được.",
+        "14:20 – Điều phối: Đã chia route thành 2 chuyến, ưu tiên các hộ có người già.",
+        "17:30 – TNV: Đã giao xong tất cả đơn.",
+      ],
+    },
+  ];
 
-    const feedbacks = [
-      {
-        id: "FB_0001",
-        status: "Open",
-        priority: "Low",
-        source: "Form",
-        campaignId: "CP_2025001",
-        campaignName: "Chiến dịch Mái ấm Nhật Hồng",
-        volunteerCode: "VL_910012345",
-        volunteerName: "Trần Mai Hương",
-        createdAt: "17.08.2025 20:10",
-        title: "Đề xuất tăng thời gian nghỉ giữa các ca",
-        shortMeta: "Ca chiều – Linh Trung",
-        description:
-          "TNV đề xuất tăng thêm 10–15 phút nghỉ giữa các ca vì thời tiết nắng nóng, đặc biệt cho các TNV lớn tuổi.",
-        channel: "Feedback form",
-        tags: ["Suggestion", "Operation"],
-        timeline: [
-          "20:10 – TNV gửi feedback qua form.",
-        ],
-      },
-      {
-        id: "FB_0002",
-        status: "Resolved",
-        priority: "Medium",
-        source: "Survey",
-        campaignId: "CP_2025003",
-        campaignName: "Chiến dịch Xuân sẻ chia",
-        volunteerCode: "VL_930000001",
-        volunteerName: "Đỗ Quốc Bảo",
-        createdAt: "28.01.2025 09:00",
-        title: "App phân công tuyến hơi xa so với nhà TNV",
-        shortMeta: "Bình Tân",
-        description:
-          "TNV góp ý có thể ưu tiên phân tuyến gần nhà TNV hơn để tiết kiệm thời gian di chuyển rỗng.",
-        channel: "Post-campaign survey",
-        tags: ["Routing", "UX"],
-        timeline: [
-          "09:00 – Feedback ghi nhận trong survey.",
-          "09:15 – Team vận hành note vào backlog tối ưu thuật toán ghép đơn.",
-        ],
-      },
-    ];
+  const feedbacks = [
+    {
+      id: "FB_0001",
+      status: "Open",
+      severity: 1,
+      rating: 4, // 1–5 sao
+      source: "Form",
+      campaignId: "CP_2025001",
+      campaignName: "Chiến dịch Mái ấm Nhật Hồng",
+      volunteerCode: "VL_910012345",
+      volunteerName: "Trần Mai Hương",
+      handlerCode: "AD_918956342",
+      handlerName: "Mỹ Vân",
+      createdAt: "17.08.2025 20:10",
+      title: "Đề xuất tăng thời gian nghỉ giữa các ca",
+      shortMeta: "Ca chiều – Linh Trung",
+      description:
+        "TNV đề xuất tăng thêm 10–15 phút nghỉ giữa các ca vì thời tiết nắng nóng, đặc biệt cho các TNV lớn tuổi.",
+      channel: "Feedback form",
+      tags: ["Suggestion", "Operation"],
+      timeline: [
+        "20:10 – TNV: Đề xuất tăng thêm thời gian nghỉ giữa các ca vì thời tiết khá nóng.",
+      ],
+    },
+    {
+      id: "FB_0002",
+      status: "Resolved",
+      severity: 2,
+      rating: 3,
+      source: "Survey",
+      campaignId: "CP_2025003",
+      campaignName: "Chiến dịch Xuân sẻ chia",
+      volunteerCode: "VL_930000001",
+      volunteerName: "Đỗ Quốc Bảo",
+      handlerCode: "AD_000000002",
+      handlerName: "Foodbank Operation Team",
+      createdAt: "28.01.2025 09:00",
+      title: "App phân công tuyến hơi xa so với nhà TNV",
+      shortMeta: "Bình Tân",
+      description:
+        "TNV góp ý có thể ưu tiên phân tuyến gần nhà TNV hơn để tiết kiệm thời gian di chuyển rỗng.",
+      channel: "Post-campaign survey",
+      tags: ["Routing", "UX"],
+      timeline: [
+        "09:00 – TNV: Tuyến được phân công hơi xa nhà, mong ưu tiên gần hơn.",
+        "09:15 – Operation: Đã ghi nhận, đưa vào backlog tối ưu thuật toán ghép đơn.",
+      ],
+    },
+    // Feedback từ Hộ yếu thế
+    {
+      id: "FB_0003",
+      status: "Open",
+      severity: 2,
+      rating: 5,
+      source: "Hotline",
+      campaignId: "CP_2025004",
+      campaignName: "Chiến dịch Đồng hành cùng bé đến trường",
+      volunteerCode: "HH_000000045",        // dùng chung field cho code người gửi
+      volunteerName: "Bà Lê Thị Hoa",        // dùng chung field cho tên người gửi
+      senderType: "Hộ yếu thế",             // thông tin thêm, hiện chưa render
+      handlerCode: "AD_918956342",
+      handlerName: "Mỹ Vân",
+      createdAt: "05.02.2025 19:30",
+      title: "Góp ý thời gian giao quà buổi tối muộn",
+      shortMeta: "Nhà trọ khu Long Thạnh Mỹ",
+      description:
+        "Hộ gia đình phản hồi rằng thời gian giao quà tối sau 21h khá muộn với trẻ nhỏ, mong chương trình có thể ưu tiên giao sớm hơn vào cuối tuần.",
+      channel: "Hotline",
+      tags: ["Schedule", "Household"],
+      timeline: [
+        "19:30 – Hộ yếu thế: Quà giao sau 21h khá muộn, mong giao sớm hơn cho trẻ nhỏ.",
+      ],
+    },
+  ];
 
-    let currentType = "incident"; // incident | feedback
-    let currentStatusFilter = "ALL";
-    let selectedId = null;
+  let currentType = "incident"; // incident | feedback
+  let currentStatusFilter = "ALL";
+  let selectedId = null;
 
-    // DOM
-    let listEl, detailEl, searchInput, statusChips, typeButtons;
-    let incidentBadge, feedbackBadge, sidebarIncidentOpen, sidebarFeedbackNew;
-    let listHeaderTitle, listCounter, mainTitle, mainSubtitle;
+  // DOM
+  let listEl, detailEl, searchInput, statusChips, typeButtons;
+  let incidentBadge, feedbackBadge, sidebarIncidentOpen, sidebarFeedbackNew;
+  let listHeaderTitle, listCounter, mainTitle, mainSubtitle;
 
-    function getStatusClass(status) {
-      if (status === "Open") return "status-open";
-      if (status === "InProgress") return "status-inprogress";
-      if (status === "Resolved") return "status-resolved";
-      return "";
+  function getStatusClass(status) {
+    if (status === "Open") return "status-open";
+    if (status === "InProgress") return "status-inprogress";
+    if (status === "Resolved") return "status-resolved";
+    return "";
+  }
+
+  function getSeverityClass(level) {
+    if (level === 3) return "severity-high";
+    if (level === 2) return "severity-medium";
+    return "severity-low";
+  }
+
+  function getSeverityLabel(level) {
+    if (level === 3) return "Cao";
+    if (level === 2) return "Trung bình";
+    return "Thấp";
+  }
+
+  function getChannelIcon(ticket) {
+    // Hotline => 📞, còn lại 💬
+    if (
+      (ticket.source && ticket.source.toLowerCase().includes("hotline")) ||
+      (ticket.channel && ticket.channel.toLowerCase().includes("hotline"))
+    ) {
+      return "📞";
+    }
+    return "💬";
+  }
+
+  function getDataForCurrentType() {
+    return currentType === "incident" ? incidents : feedbacks;
+  }
+
+  function filterTickets() {
+    const data = getDataForCurrentType();
+    const q = (searchInput.value || "").toLowerCase().trim();
+
+    return data.filter((t) => {
+      const matchStatus =
+        currentStatusFilter === "ALL" ||
+        t.status.toLowerCase() === currentStatusFilter.toLowerCase();
+
+      const fullText = [
+        t.id || "",
+        t.title || "",
+        t.campaignId || "",
+        t.campaignName || "",
+        t.volunteerCode || "",
+        t.volunteerName || "",
+        t.handlerName || "",
+        t.handlerCode || "",
+        t.senderType || "",
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      const matchSearch = !q || fullText.includes(q);
+      return matchStatus && matchSearch;
+    });
+  }
+
+  function renderList() {
+    const tickets = filterTickets();
+    if (!tickets.length) {
+      listEl.innerHTML =
+        '<div style="font-size:0.8rem;color:#6b7280;padding:8px;">Không có ticket phù hợp.</div>';
+      listCounter.textContent = "0 item";
+      return;
     }
 
-    function getPriorityClass(priority) {
-      if (priority === "High") return "priority-high";
-      if (priority === "Medium") return "priority-medium";
-      return "priority-low";
-    }
+    listEl.innerHTML = tickets
+      .map((t) => {
+        const statusCls = getStatusClass(t.status);
+        const severityCls = getSeverityClass(t.severity);
+        const activeCls = t.id === selectedId ? " active" : "";
+        const lastLine =
+          t.timeline && t.timeline.length ? t.timeline[t.timeline.length - 1] : "";
+        const icon = getChannelIcon(t);
+        const handler = t.handlerName ? `Xử lý: ${t.handlerName}` : "Xử lý: Chưa gán";
 
-    function getDataForCurrentType() {
-      return currentType === "incident" ? incidents : feedbacks;
-    }
+        const isIncident = currentType === "incident";
+        const campaignLine = isIncident
+          ? `${t.campaignId} – ${t.campaignName}`
+          : "";
+        const actorLabel = isIncident ? "TNV" : "Người gửi";
+        const actorLine = `${actorLabel}: ${t.volunteerName} (${t.volunteerCode})`;
 
-    function filterTickets() {
-      const data = getDataForCurrentType();
-      const q = (searchInput.value || "").toLowerCase().trim();
-
-      return data.filter((t) => {
-        const matchStatus =
-          currentStatusFilter === "ALL" ||
-          t.status.toLowerCase() === currentStatusFilter.toLowerCase();
-
-        const fullText = [
-          t.id,
-          t.title,
-          t.campaignId,
-          t.campaignName,
-          t.volunteerCode,
-          t.volunteerName,
-        ]
-          .join(" ")
-          .toLowerCase();
-
-        const matchSearch = !q || fullText.includes(q);
-        return matchStatus && matchSearch;
-      });
-    }
-
-    function renderList() {
-      const tickets = filterTickets();
-      if (!tickets.length) {
-        listEl.innerHTML =
-          '<div style="font-size:0.8rem;color:#6b7280;padding:8px;">Không có ticket phù hợp.</div>';
-        listCounter.textContent = "0 item";
-        return;
-      }
-
-      listEl.innerHTML = tickets
-        .map((t) => {
-          const statusCls = getStatusClass(t.status);
-          const priorityCls = getPriorityClass(t.priority);
-          const activeCls = t.id === selectedId ? " active" : "";
-          return `
+        return `
           <div class="ticket-card${activeCls}" data-id="${t.id}">
             <div class="ticket-card-top">
-              <div class="ticket-id">${t.id}</div>
+              <div class="ticket-id">#${t.id}</div>
               <div class="ticket-status-pill ${statusCls}">${t.status}</div>
             </div>
             <div class="ticket-card-main">
               <div class="ticket-title">${t.title}</div>
               <div class="ticket-meta">
-                ${t.campaignId} – ${t.campaignName}<br/>
-                TNV: ${t.volunteerName} (${t.volunteerCode})
+                ${campaignLine ? campaignLine + "<br/>" : ""}
+                ${actorLine}<br/>
+                ${handler}
               </div>
+              ${
+                lastLine
+                  ? `<div class="ticket-last-contact">Last contact: ${icon} ${lastLine}</div>`
+                  : ""
+              }
             </div>
             <div class="ticket-footer">
               <span>${t.createdAt}</span>
-              <span class="ticket-priority ${priorityCls}">${t.priority}</span>
+              <span class="ticket-severity ${severityCls}">Mức độ ${t.severity}</span>
             </div>
           </div>
         `;
-        })
-        .join("");
+      })
+      .join("");
 
-      listCounter.textContent =
-        tickets.length + (tickets.length > 1 ? " items" : " item");
+    listCounter.textContent =
+      tickets.length + (tickets.length > 1 ? " items" : " item");
+  }
+
+  function starString(rating) {
+    if (!rating || rating <= 0) return "☆☆☆☆☆";
+    if (rating >= 5) return "★★★★★";
+    return "★".repeat(rating) + "☆".repeat(5 - rating);
+  }
+
+  function renderDetail() {
+    const data = getDataForCurrentType();
+    const ticket = data.find((t) => t.id === selectedId);
+    if (!ticket) {
+      detailEl.innerHTML =
+        '<div class="placeholder">Chọn một incident hoặc feedback ở danh sách bên trái để xem chi tiết.</div>';
+      return;
     }
 
-    function renderDetail() {
-      const data = getDataForCurrentType();
-      const ticket = data.find((t) => t.id === selectedId);
-      if (!ticket) {
-        detailEl.innerHTML =
-          '<div class="placeholder">Chọn một incident hoặc feedback ở danh sách bên trái để xem chi tiết.</div>';
-        return;
-      }
+    const statusCls = getStatusClass(ticket.status);
+    const severityCls = getSeverityClass(ticket.severity);
+    const typeLabel = currentType === "incident" ? "Incident" : "Feedback";
 
-      const statusCls = getStatusClass(ticket.status);
-      const priorityCls = getPriorityClass(ticket.priority);
-      const typeLabel = currentType === "incident" ? "Incident" : "Feedback";
-
-      detailEl.innerHTML = `
-        <div class="ticket-detail-header">
-          <div>
-            <div class="ticket-detail-title">${ticket.title}</div>
-            <div class="ticket-detail-sub">
-              ${typeLabel} • ${ticket.id} • ${ticket.createdAt}
-            </div>
-          </div>
-          <div>
-            <div class="ticket-status-pill ${statusCls}" style="margin-bottom:4px;">${ticket.status}</div>
-            <div class="ticket-priority ${priorityCls}" style="display:inline-block;">${ticket.priority}</div>
-          </div>
-        </div>
-
-        <div class="ticket-detail-tags">
-          <span class="tag-pill">${ticket.campaignId} – ${ticket.campaignName}</span>
-          <span class="tag-pill">TNV: ${ticket.volunteerName}</span>
-          <span class="tag-pill">${ticket.channel}</span>
-          ${ticket.tags
-            .map((tag) => `<span class="tag-pill">#${tag}</span>`)
-            .join("")}
-        </div>
-
-        <div class="ticket-section">
-          <div class="ticket-section-title">Mô tả chi tiết</div>
-          <div class="ticket-section-body">${ticket.description}</div>
-        </div>
-
-        <div class="ticket-detail-grid">
-          <div><span>Campaign ID:</span> <strong>${ticket.campaignId}</strong></div>
-          <div><span>Nguồn:</span> <strong>${ticket.source}</strong></div>
-          <div><span>Mã TNV:</span> <strong>${ticket.volunteerCode}</strong></div>
-          <div><span>Người tạo:</span> <strong>${ticket.volunteerName}</strong></div>
-        </div>
-
-        <div class="ticket-timeline">
-          <div class="ticket-section-title">Timeline xử lý</div>
-          ${ticket.timeline
-            .map(
-              (line) => `
-            <div class="timeline-entry">
-              <div class="timeline-dot"></div>
-              <div class="timeline-text">${line}</div>
-            </div>
-          `
-            )
-            .join("")}
-        </div>
+    // Tags: Incident giữ campaign, Feedback bỏ campaign
+    let tagsHtml = "";
+    if (currentType === "incident") {
+      tagsHtml = `
+        <span class="tag-pill">${ticket.campaignId} – ${ticket.campaignName}</span>
+        <span class="tag-pill">TNV: ${ticket.volunteerName}</span>
+        <span class="tag-pill">${ticket.channel}</span>
+        ${(ticket.tags || [])
+          .map((tag) => `<span class="tag-pill">#${tag}</span>`)
+          .join("")}
+      `;
+    } else {
+      tagsHtml = `
+        <span class="tag-pill">Người gửi: ${ticket.volunteerName}</span>
+        <span class="tag-pill">${ticket.channel}</span>
+        ${(ticket.tags || [])
+          .map((tag) => `<span class="tag-pill">#${tag}</span>`)
+          .join("")}
       `;
     }
 
-    function updateSidebarStats() {
-      const openInc = incidents.filter((i) => i.status === "Open").length;
-      const newFb = feedbacks.filter((f) => f.status === "Open").length;
-
-      sidebarIncidentOpen.textContent = openInc;
-      sidebarFeedbackNew.textContent = newFb;
-
-      incidentBadge.textContent = incidents.length;
-      feedbackBadge.textContent = feedbacks.length;
+    // Grid thông tin
+    let gridHtml;
+    if (currentType === "feedback") {
+      const ratingText = ticket.rating
+        ? `${ticket.rating}/5 ${starString(ticket.rating)}`
+        : "Chưa đánh giá";
+      gridHtml = `
+        <div><span>Rate:</span> <strong>${ratingText}</strong></div>
+        <div><span>Nguồn:</span> <strong>${ticket.source}</strong></div>
+        <div><span>Mã người gửi:</span> <strong>${ticket.volunteerCode}</strong></div>
+        <div><span>Tên người gửi:</span> <strong>${ticket.volunteerName}</strong></div>
+        <div><span>Mã Admin:</span> <strong>${ticket.handlerCode || "—"}</strong></div>
+        <div><span>Người xử lý:</span> <strong>${ticket.handlerName || "Chưa gán"}</strong></div>
+      `;
+    } else {
+      gridHtml = `
+        <div><span>Campaign ID:</span> <strong>${ticket.campaignId}</strong></div>
+        <div><span>Nguồn:</span> <strong>${ticket.source}</strong></div>
+        <div><span>Mã TNV:</span> <strong>${ticket.volunteerCode}</strong></div>
+        <div><span>Người tạo:</span> <strong>${ticket.volunteerName}</strong></div>
+        <div><span>Mã Admin:</span> <strong>${ticket.handlerCode || "—"}</strong></div>
+        <div><span>Người xử lý:</span> <strong>${ticket.handlerName || "Chưa gán"}</strong></div>
+      `;
     }
 
-    function updateMainHeader() {
-      if (currentType === "incident") {
-        mainTitle.textContent = "Incident";
-        mainSubtitle.textContent =
-          " Các sự cố phát sinh trong quá trình giao hàng & tổ chức chiến dịch";
-        listHeaderTitle.textContent = "Incident đang theo dõi";
-      } else {
-        mainTitle.textContent = "Feedback";
-        mainSubtitle.textContent =
-          " Ghi nhận phản hồi & đề xuất cải thiện trải nghiệm của TNV";
-        listHeaderTitle.textContent = "Feedback từ tình nguyện viên";
-      }
+    detailEl.innerHTML = `
+      <div class="ticket-detail-header">
+        <div>
+          <div class="ticket-detail-title">${ticket.title}</div>
+          <div class="ticket-detail-sub">
+            ${typeLabel} • #${ticket.id} • ${ticket.createdAt}
+          </div>
+        </div>
+        <div class="ticket-detail-header-right">
+          <div class="ticket-status-pill ${statusCls}">${ticket.status}</div>
+          <div class="ticket-severity ${severityCls}">
+            Mức độ ${ticket.severity}
+          </div>
+        </div>
+      </div>
+
+      <div class="ticket-detail-tags">
+        ${tagsHtml}
+      </div>
+
+      <div class="ticket-section">
+        <div class="ticket-section-title">Mô tả chi tiết</div>
+        <div class="ticket-section-body">${ticket.description}</div>
+      </div>
+
+      <div class="ticket-detail-grid">
+        ${gridHtml}
+      </div>
+
+      <div class="ticket-conversation">
+        <div class="ticket-section-title">Lịch sử trao đổi</div>
+        ${
+          ticket.timeline && ticket.timeline.length
+            ? ticket.timeline
+                .map(
+                  (line) => `
+            <div class="conversation-message">
+              <div class="conversation-bubble">${line}</div>
+            </div>
+          `
+                )
+                .join("")
+            : '<div style="font-size:0.78rem;color:#6b7280;">Chưa có trao đổi nào được ghi nhận.</div>'
+        }
+      </div>
+    `;
+  }
+
+  function updateSidebarStats() {
+    const openInc = incidents.filter((i) => i.status === "Open").length;
+    const newFb = feedbacks.filter((f) => f.status === "Open").length;
+
+    sidebarIncidentOpen.textContent = openInc;
+    sidebarFeedbackNew.textContent = newFb;
+
+    incidentBadge.textContent = incidents.length;
+    feedbackBadge.textContent = feedbacks.length;
+  }
+
+  function updateMainHeader() {
+    if (currentType === "incident") {
+      mainTitle.textContent = "Incident";
+      mainSubtitle.textContent =
+        " Các sự cố phát sinh trong quá trình giao hàng & tổ chức chiến dịch";
+      listHeaderTitle.textContent = "Incident đang theo dõi";
+    } else {
+      mainTitle.textContent = "Feedback";
+      mainSubtitle.textContent =
+        " Ghi nhận phản hồi & đề xuất cải thiện trải nghiệm của TNV, tổ dân phố, hộ yếu thế";
+      listHeaderTitle.textContent = "Feedback từ user";
     }
+  }
+
+  // Events
+  function onTicketClick(e) {
+    const card = e.target.closest(".ticket-card");
+    if (!card) return;
+    selectedId = card.getAttribute("data-id");
+    renderList();
+    renderDetail();
+  }
+
+  function onTypeClick(e) {
+    const btn = e.currentTarget;
+    const type = btn.getAttribute("data-type");
+    if (!type || type === currentType) return;
+
+    currentType = type;
+    selectedId = null;
+
+    typeButtons.forEach((b) =>
+      b.classList.remove("support-menu-item-active")
+    );
+    btn.classList.add("support-menu-item-active");
+
+    updateMainHeader();
+    renderList();
+    renderDetail();
+  }
+
+  function onStatusChipClick(e) {
+    statusChips.forEach((c) => c.classList.remove("chip-active"));
+    e.target.classList.add("chip-active");
+    currentStatusFilter = e.target.getAttribute("data-status") || "ALL";
+    renderList();
+    renderDetail();
+  }
+
+  function onSearchChange() {
+    renderList();
+    renderDetail();
+  }
+
+  function initSupportPage() {
+    listEl = document.getElementById("ticketList");
+    detailEl = document.getElementById("ticketDetail");
+    searchInput = document.getElementById("ticketSearch");
+    statusChips = document.querySelectorAll(".chips-row .chip");
+    typeButtons = document.querySelectorAll(".support-menu-item");
+
+    incidentBadge = document.getElementById("incidentCountBadge");
+    feedbackBadge = document.getElementById("feedbackCountBadge");
+    sidebarIncidentOpen = document.getElementById("sidebarIncidentOpen");
+    sidebarFeedbackNew = document.getElementById("sidebarFeedbackNew");
+
+    listHeaderTitle = document.getElementById("listHeaderTitle");
+    listCounter = document.getElementById("listCounter");
+    mainTitle = document.getElementById("mainTitle");
+    mainSubtitle = document.getElementById("mainSubtitle");
 
     // Events
-    function onTicketClick(e) {
-      const card = e.target.closest(".ticket-card");
-      if (!card) return;
-      selectedId = card.getAttribute("data-id");
-      renderList();
-      renderDetail();
-    }
+    listEl.addEventListener("click", onTicketClick);
+    typeButtons.forEach((b) => b.addEventListener("click", onTypeClick));
+    statusChips.forEach((c) => c.addEventListener("click", onStatusChipClick));
+    searchInput.addEventListener("input", onSearchChange);
 
-    function onTypeClick(e) {
-      const btn = e.currentTarget;
-      const type = btn.getAttribute("data-type");
-      if (!type || type === currentType) return;
+    updateSidebarStats();
+    updateMainHeader();
+    renderList();
+  }
 
-      currentType = type;
-      selectedId = null;
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSupportPage);
+  } else {
+    initSupportPage();
+  }
 
-      typeButtons.forEach((b) =>
-        b.classList.remove("support-menu-item-active")
-      );
-      btn.classList.add("support-menu-item-active");
+  // Điều hướng chung
+  function goTo(path) {
+    window.location.href = path;
+  }
+</script>
 
-      updateMainHeader();
-      renderList();
-      renderDetail();
-    }
-
-    function onStatusChipClick(e) {
-      statusChips.forEach((c) => c.classList.remove("chip-active"));
-      e.target.classList.add("chip-active");
-      currentStatusFilter = e.target.getAttribute("data-status") || "ALL";
-      renderList();
-      renderDetail();
-    }
-
-    function onSearchChange() {
-      renderList();
-      renderDetail();
-    }
-
-    function initSupportPage() {
-      listEl = document.getElementById("ticketList");
-      detailEl = document.getElementById("ticketDetail");
-      searchInput = document.getElementById("ticketSearch");
-      statusChips = document.querySelectorAll(".chips-row .chip");
-      typeButtons = document.querySelectorAll(".support-menu-item");
-
-      incidentBadge = document.getElementById("incidentCountBadge");
-      feedbackBadge = document.getElementById("feedbackCountBadge");
-      sidebarIncidentOpen = document.getElementById("sidebarIncidentOpen");
-      sidebarFeedbackNew = document.getElementById("sidebarFeedbackNew");
-
-      listHeaderTitle = document.getElementById("listHeaderTitle");
-      listCounter = document.getElementById("listCounter");
-      mainTitle = document.getElementById("mainTitle");
-      mainSubtitle = document.getElementById("mainSubtitle");
-
-      // Events
-      listEl.addEventListener("click", onTicketClick);
-      typeButtons.forEach((b) => b.addEventListener("click", onTypeClick));
-      statusChips.forEach((c) => c.addEventListener("click", onStatusChipClick));
-      searchInput.addEventListener("input", onSearchChange);
-
-      updateSidebarStats();
-      updateMainHeader();
-      renderList();
-    }
-
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", initSupportPage);
-    } else {
-      initSupportPage();
-    }
-
-    // Điều hướng chung
-    function goTo(path) {
-      window.location.href = path;
-    }
-  </script>
 </body>
 </html>
