@@ -14,7 +14,20 @@ const db = new sqlite3.Database(dbPath);
 app.use(cors());
 app.use(express.json());
 
-// create tables + sample data
+// ================== SERVE FRONTEND (QUAN TRỌNG) ==================
+// Serve toàn bộ file tĩnh trong folder public:
+//  /login.html, /orders.html, /accounts.html, ...
+app.use(express.static(path.join(__dirname, "public")));
+
+// Serve riêng giao diện Community Leader ở đường dẫn /for_CL/...
+app.use("/for_CL", express.static(path.join(__dirname, "for_CL")));
+
+// Khi vào root "/" thì tự chuyển sang trang login
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+// ================== KHỞI TẠO TABLE + SAMPLE DATA ==================
 db.serialize(() => {
   db.run(
     `CREATE TABLE IF NOT EXISTS orders (
@@ -193,8 +206,6 @@ db.serialize(() => {
 });
 
 // ========== API ==========
-
-// GET /api/orders
 app.get("/api/orders", (req, res) => {
   const { status, q, sort } = req.query;
 
@@ -240,7 +251,6 @@ app.get("/api/orders", (req, res) => {
   });
 });
 
-// POST /api/orders (upsert)
 app.post("/api/orders", (req, res) => {
   const o = req.body || {};
   if (!o.order_id) return res.status(400).json({ error: "order_id_required" });
@@ -299,7 +309,6 @@ app.post("/api/orders", (req, res) => {
   });
 });
 
-// fake checkpoints
 app.get("/api/orders/:id/checkpoints", (req, res) => {
   const id = req.params.id;
   const base = [
@@ -320,7 +329,6 @@ app.get("/api/orders/:id/checkpoints", (req, res) => {
   res.json(base);
 });
 
-// fake items
 app.get("/api/orders/:id/items", (req, res) => {
   res.json([
     {
@@ -350,7 +358,6 @@ app.get("/api/orders/:id/items", (req, res) => {
   ]);
 });
 
-// POST /api/campaigns
 app.post("/api/campaigns", (req, res) => {
   const c = req.body || {};
   if (!c.campaign_id)
@@ -385,7 +392,6 @@ app.post("/api/campaigns", (req, res) => {
   });
 });
 
-// GET /api/campaigns
 app.get("/api/campaigns", (req, res) => {
   db.all(
     "SELECT * FROM campaigns ORDER BY start_date DESC",

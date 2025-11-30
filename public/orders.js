@@ -1,3 +1,29 @@
+// ===== SIMPLE AUTH GUARD: chỉ cho phép Admin vào trang Orders =====
+function requireAdmin() {
+  const raw = localStorage.getItem('currentUser');
+
+  if (!raw) {
+    // Chưa đăng nhập
+    window.location.href = 'login.html';
+    return false;
+  }
+
+  try {
+    const user = JSON.parse(raw);
+    if (!user || user.role !== 'admin') {
+      alert('Chỉ Admin mới được truy cập trang Đơn hàng.');
+      window.location.href = 'login.html';
+      return false;
+    }
+    // Hợp lệ
+    return true;
+  } catch (err) {
+    // Dữ liệu lỗi → đăng nhập lại
+    window.location.href = 'login.html';
+    return false;
+  }
+}
+
 // ===== Demo data Orders =====
 const demoOrders = [
   {
@@ -397,10 +423,38 @@ function clearFilters() {
 }
 
 // ===== INIT =====
+// ===== INIT =====
 document.addEventListener("DOMContentLoaded", () => {
+  // Kiểm tra quyền truy cập
+  if (!requireAdmin()) {
+    // Nếu fail thì requireAdmin đã redirect rồi, không cần chạy tiếp
+    return;
+  }
+
+  // Nếu qua được requireAdmin → chắc chắn là Admin
   populateFilters();
   updateStatusCounts();
   renderOrders(demoOrders); // chỉ render list, không mở modal
+
+  document
+    .getElementById("orderSearch")
+    .addEventListener("input", applyFilters);
+  document
+    .getElementById("filterStatus")
+    .addEventListener("change", applyFilters);
+  document
+    .getElementById("filterCampaign")
+    .addEventListener("change", applyFilters);
+  document
+    .getElementById("filterWarehouse")
+    .addEventListener("change", applyFilters);
+  document
+    .getElementById("btnApplyFilter")
+    .addEventListener("click", applyFilters);
+
+  // ... KHỐI CODE INIT CÒN LẠI CỦA BẠN GIỮ NGUYÊN (listener mở/đóng modal, v.v.)
+});
+
 
   document
     .getElementById("orderSearch")
@@ -440,4 +494,4 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeOrderDetail();
   });
-});
+
