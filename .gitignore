@@ -2,7 +2,9 @@
 node_modules/
 package-lock.json
 yarn.lock
-
+backend
+HOUSEHOLD_SETUP.md
+*.bat
 # Environment variables
 .env
 .env.local
