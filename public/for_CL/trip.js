@@ -374,6 +374,274 @@ function updateMap(trip, mode) {
   }
 }
 
+// ===== Render Trips Page (được gọi từ dashboard.js) =====
+function renderTripsPage() {
+  const contentArea = document.getElementById("contentArea");
+  if (!contentArea) return;
+
+  contentArea.innerHTML = `
+    <div class="panel">
+      <h2 class="panel-title">🗺️ Chuyến giao trong khu vực</h2>
+      <p class="panel-subtitle">
+        Theo dõi trạng thái và lộ trình giao hàng của tình nguyện viên
+      </p>
+      
+      <div style="margin-bottom: 12px;">
+        <input 
+          type="text" 
+          id="tripSearch" 
+          class="input" 
+          placeholder="Tìm theo mã chuyến, TNV, chiến dịch..."
+          style="max-width: 300px;"
+        />
+      </div>
+
+      <div class="chips-row" style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+        <button class="chip chip-active" data-status="ALL">Tất cả</button>
+        <button class="chip" data-status="Planned">Kế hoạch</button>
+        <button class="chip" data-status="InProcess">Đang giao</button>
+        <button class="chip" data-status="Completed">Hoàn thành</button>
+        <button class="chip" data-status="Cancelled">Đã hủy</button>
+      </div>
+
+      <div id="tripList" style="display: grid; gap: 12px;">
+        <!-- Trip cards sẽ render ở đây -->
+      </div>
+
+      <div id="tripDetailSection" style="margin-top: 20px; display: none;">
+        <h3 class="panel-title">Chi tiết chuyến giao</h3>
+        <div id="tripDetailContent"></div>
+      </div>
+    </div>
+  `;
+
+  // Khởi tạo render
+  const searchInput = document.getElementById("tripSearch");
+  const chipButtons = Array.from(document.querySelectorAll(".chips-row .chip"));
+  let currentStatusFilter = "ALL";
+
+  renderTripList(currentStatusFilter, "");
+
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      const term = searchInput.value || "";
+      renderTripList(currentStatusFilter, term);
+    });
+  }
+
+  chipButtons.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chipButtons.forEach((c) => c.classList.remove("chip-active"));
+      chip.classList.add("chip-active");
+
+      currentStatusFilter = chip.dataset.status || "ALL";
+      const term = searchInput ? searchInput.value : "";
+      renderTripList(currentStatusFilter, term);
+    });
+  });
+}
+
+// ===== Render Trips Page (được gọi từ dashboard.js) =====
+function renderTripsPage() {
+  const contentArea = document.getElementById("contentArea");
+  if (!contentArea) return;
+
+  contentArea.innerHTML = `
+    <div class="trip-layout" style="position: fixed; top: 0; left: 220px; right: 0; bottom: 0; display: flex;">
+      <!-- SIDEBAR TRIP -->
+      <section class="trip-sidebar">
+        <header class="trip-sidebar-header">
+          <div>
+            <h1>Tracking trips</h1>
+            <p>Theo dõi các chuyến giao hàng trong khu vực</p>
+          </div>
+        </header>
+
+        <div class="trip-sidebar-filters">
+          <div class="search-wrapper">
+            <input
+              id="tripSearch"
+              class="input search-input"
+              placeholder="Tìm Trip ID, tình nguyện viên…"
+            />
+          </div>
+          <div class="chips-row">
+            <button class="chip chip-active" data-status="ALL">All</button>
+            <button class="chip" data-status="Planned">Planned</button>
+            <button class="chip" data-status="InProcess">In Process</button>
+            <button class="chip" data-status="Completed">Completed</button>
+            <button class="chip" data-status="Cancelled">Cancelled</button>
+          </div>
+        </div>
+
+        <div id="tripList" class="trip-list">
+          <!-- JS render danh sách trip -->
+        </div>
+      </section>
+
+      <!-- PANEL CHI TIẾT + MAP -->
+      <section class="trip-detail">
+        <!-- Thanh tiêu đề Trip -->
+        <header class="trip-detail-header">
+          <div>
+            <div class="trip-detail-label">Đang theo dõi</div>
+            <div class="trip-detail-title">
+              Trip <span id="detailTripId">–</span>
+              <span id="detailTripStatus" class="status-pill">–</span>
+            </div>
+          </div>
+          <div class="trip-detail-actions">
+            <button class="icon-btn" title="Gọi TNV">📞</button>
+            <button class="icon-btn" title="Chat">💬</button>
+            <button class="icon-btn" title="Xem docs">📄</button>
+          </div>
+        </header>
+
+        <!-- Nội dung chi tiết + map -->
+        <div class="trip-detail-body">
+          <!-- Cột timeline + load info -->
+          <div class="trip-timeline">
+            <div class="timeline-tabs">
+              <button class="tab tab-active" data-tab="tracking">Tracking</button>
+              <button class="tab" data-tab="load">Load info</button>
+            </div>
+
+            <!-- Panel: Tracking (3 mốc chính) -->
+            <div id="trackingPanel" class="timeline-panel">
+              <ul class="timeline-list">
+                <li class="timeline-item">
+                  <div class="timeline-dot timeline-dot-primary"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Pick up</div>
+                    <div id="pickupAddress" class="timeline-text"></div>
+                    <div id="pickupTime" class="timeline-time"></div>
+                  </div>
+                </li>
+                <li class="timeline-item">
+                  <div class="timeline-dot"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">In sorting centre</div>
+                    <div id="sortingAddress" class="timeline-text"></div>
+                    <div id="sortingTime" class="timeline-time"></div>
+                  </div>
+                </li>
+                <li class="timeline-item">
+                  <div class="timeline-dot"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-title">Delivered</div>
+                    <div id="deliveredAddress" class="timeline-text"></div>
+                    <div id="deliveredTime" class="timeline-time"></div>
+                  </div>
+                </li>
+              </ul>
+
+              <div class="trip-meta">
+                <div><span>Volunteer:</span> <span id="detailVolunteer">–</span></div>
+                <div><span>Campaign:</span> <span id="detailCampaign">–</span></div>
+                <div><span>Warehouse:</span> <span id="detailWarehouse">–</span></div>
+                <div><span>Distance:</span> <span id="detailDistance">–</span></div>
+              </div>
+            </div>
+
+            <!-- Panel: Load info – GPS log 2 phút/lần -->
+            <div id="loadInfoPanel" class="timeline-panel" style="display:none;">
+              <div class="gps-header">
+                <h3>Lộ trình chi tiết (GPS log)</h3>
+                <span id="gpsSummary" class="gps-summary"></span>
+              </div>
+
+              <div class="gps-table-wrapper">
+                <table class="gps-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Thời gian</th>
+                      <th>Lat</th>
+                      <th>Lng</th>
+                      <th>Địa chỉ</th>
+                      <th>Tốc độ</th>
+                      <th>Trạng thái</th>
+                    </tr>
+                  </thead>
+                  <tbody id="gpsLogTableBody">
+                    <!-- JS render GPS log -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cột map -->
+          <div class="trip-map-wrapper">
+            <div class="map-toolbar">
+              <button class="map-btn map-btn-active">Map</button>
+            </div>
+            <div id="map" class="map"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  `;
+
+  // Khởi tạo render
+  initTripPage();
+}
+
+function initTripPage() {
+  const searchInput = document.getElementById("tripSearch");
+  const chipButtons = Array.from(document.querySelectorAll(".chips-row .chip"));
+  let currentStatusFilter = "ALL";
+
+  renderTripList(currentStatusFilter, "");
+
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      const term = searchInput.value || "";
+      renderTripList(currentStatusFilter, term);
+    });
+  }
+
+  chipButtons.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chipButtons.forEach((c) => c.classList.remove("chip-active"));
+      chip.classList.add("chip-active");
+
+      currentStatusFilter = chip.dataset.status || "ALL";
+      const term = searchInput ? searchInput.value : "";
+      renderTripList(currentStatusFilter, term);
+    });
+  });
+
+  // Tabs Tracking / Load info
+  const tabButtons = Array.from(document.querySelectorAll(".timeline-tabs .tab"));
+  const trackingPanel = document.getElementById("trackingPanel");
+  const loadPanel = document.getElementById("loadInfoPanel");
+
+  tabButtons.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      tabButtons.forEach((b) => b.classList.remove("tab-active"));
+      tab.classList.add("tab-active");
+
+      if (!trackingPanel || !loadPanel) return;
+
+      const tabName = tab.dataset.tab;
+      if (tabName === "load") {
+        trackingPanel.style.display = "none";
+        loadPanel.style.display = "block";
+      } else {
+        trackingPanel.style.display = "block";
+        loadPanel.style.display = "none";
+      }
+
+      // đổi mode map theo tab
+      if (currentTrip) {
+        const mode = tabName === "load" ? "load" : "tracking";
+        updateMap(currentTrip, mode);
+      }
+    });
+  });
+}
+
 // ===== Khởi động khi DOM sẵn sàng =====
 document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("tripSearch");

@@ -1,41 +1,5 @@
-// ===== Auth guard: chỉ cho Community Leader =====
-// ===== Auth guard cho Community Leader =====
-// ===== Auth guard cho Community Leader =====
-function requireCommunityLeader() {
-  const raw = localStorage.getItem("currentUser");
-
-  // Không có thông tin đăng nhập -> quay về login
-  if (!raw) {
-    window.location.href = "../for_admin/login.html";   // từ /for_CL/ ra /login.html
-    return null;
-  }
-
-  try {
-    const user = JSON.parse(raw);
-
-    // Chấp nhận cả "community_leader" (từ login demo) hoặc "CL" (sau này nếu bạn đổi)
-    const role = user.role;
-    if (role !== "community_leader" && role !== "CL") {
-      alert("Bạn không có quyền truy cập giao diện Community Leader.");
-      window.location.href = "../for_admin/login.html";
-      return null;
-    }
-
-    return user;
-  } catch (err) {
-    window.location.href = "../for_admin/login.html";
-    return null;
-  }
-}
-// ===== Logout =====
-
-function logout() {
-  if (confirm("Bạn chắc chắn muốn đăng xuất?")) {
-    localStorage.removeItem("currentUser");
-    window.location.href = "../for_admin/login.html";
-  }
-}
-
+// ===== cl.js - Helper functions và demo data cho Community Leader =====
+// Logic navigation và init được xử lý bởi dashboard.js
 
 // ===== Demo data =====
 const clOrders = [
@@ -415,61 +379,4 @@ function renderSupportList() {
   });
 }
 
-document.querySelectorAll(".cl-nav-item").forEach((btn)=>{
-  btn.addEventListener("click",()=>{
-    const tab = btn.dataset.tab;
-    switch(tab){
-      case "survey": window.location.href="survey.html"; break;
-      case "households": window.location.href="households.html"; break;
-      case "request": window.location.href="request.html"; break;
-      case "orders": window.location.href="orders.html"; break;
-      case "trip": window.location.href="trip.html"; break;
-      default: window.location.href="index.html"; break;
-    }
-  });
-});
-
-// ===== Navigation =====
-function switchScreen(name) {
-  document.querySelectorAll("[data-screen]").forEach((sec) => {
-    sec.classList.toggle("hidden", sec.dataset.screen !== name);
-  });
-  document.querySelectorAll(".cl-nav-item").forEach((btn) => {
-    btn.classList.toggle("cl-nav-item-active", btn.dataset.tab === name);
-  });
-}
-
-// ===== INIT =====
-document.addEventListener("DOMContentLoaded", () => {
-  const user = requireCommunityLeader();
-  if (!user) return;
-
-  // hiển thị tên / khu vực demo
-  document.getElementById("clDisplayName").textContent = user.phone || "Community Leader";
-  document.getElementById("clAreaName").textContent = "Khu phố 2, Phường 1, Quận 4";
-
-  renderDashboard();
-  renderOrdersList();
-  renderHouseholdsList();
-  renderVolunteersList();
-  renderSupportList();
-
-  document.querySelectorAll(".cl-nav-item").forEach((btn) => {
-    btn.addEventListener("click", () => switchScreen(btn.dataset.tab));
-  });
-  switchScreen("dashboard");
-
-  document.getElementById("clOrderSearch").addEventListener("input", renderOrdersList);
-  document.getElementById("clOrderStatusFilter").addEventListener("change", renderOrdersList);
-
-  document.getElementById("clHouseholdSearch").addEventListener("input", renderHouseholdsList);
-  document.getElementById("clHouseholdRiskFilter").addEventListener("change", renderHouseholdsList);
-
-  document.getElementById("clVolunteerSearch").addEventListener("input", renderVolunteersList);
-  document.getElementById("clVolunteerStatusFilter").addEventListener("change", renderVolunteersList);
-
-  document.getElementById("clLogout").addEventListener("click", () => {
-    localStorage.removeItem("currentUser");
-    window.location.href = "../for_admin/login.html";
-  });
-});
+// ===== cl.js - Các helper functions không xung đột với dashboard.js =====

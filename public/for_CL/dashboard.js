@@ -87,38 +87,68 @@ function updateHeader(title, subtitle) {
 
 function renderPageContent() {
   const contentArea = document.getElementById("contentArea");
-  if (!contentArea) return;
+  if (!contentArea) {
+    console.error("contentArea not found!");
+    return;
+  }
+
+  console.log("Rendering page:", currentPage);
 
   if (currentPage === "survey") {
     updateHeader(
       "Khảo sát nhu cầu",
       "Điền khảo sát nhu cầu và xem lịch sử cho từng hộ yếu thế"
     );
-    renderSurveyPage();
+    if (typeof renderSurveyPage === 'function') {
+      renderSurveyPage();
+    } else {
+      console.error("renderSurveyPage is not defined!");
+      contentArea.innerHTML = '<div class="panel"><p style="color: red;">Lỗi: renderSurveyPage không tồn tại</p></div>';
+    }
   } else if (currentPage === "households") {
     updateHeader(
       "Danh sách hộ yếu thế",
       "Cập nhật thông tin hộ yếu thế trong khu vực phụ trách"
     );
-    renderHouseholdsPage();
+    if (typeof renderHouseholdsPage === 'function') {
+      renderHouseholdsPage();
+    } else {
+      console.error("renderHouseholdsPage is not defined!");
+      contentArea.innerHTML = '<div class="panel"><p style="color: red;">Lỗi: renderHouseholdsPage không tồn tại</p></div>';
+    }
   } else if (currentPage === "requests") {
     updateHeader(
       "Yêu cầu giao hàng",
       "Tạo yêu cầu giao hàng tập kết/đặc biệt cho khu vực"
     );
-    renderRequestsPage();
+    if (typeof renderRequestsPage === 'function') {
+      renderRequestsPage();
+    } else {
+      console.error("renderRequestsPage is not defined!");
+      contentArea.innerHTML = '<div class="panel"><p style="color: red;">Lỗi: renderRequestsPage không tồn tại</p></div>';
+    }
   } else if (currentPage === "orders") {
     updateHeader(
       "Đơn hàng trong khu vực",
       "Theo dõi trạng thái các đơn hàng đã tạo cho hộ yếu thế"
     );
-    renderOrdersPage();
+    if (typeof renderOrdersPage === 'function') {
+      renderOrdersPage();
+    } else {
+      console.error("renderOrdersPage is not defined!");
+      contentArea.innerHTML = '<div class="panel"><p style="color: red;">Lỗi: renderOrdersPage không tồn tại</p></div>';
+    }
   } else if (currentPage === "trips") {
     updateHeader(
       "Chuyến giao trong khu vực",
       "Giám sát bản đồ & lộ trình giao hàng của tình nguyện viên"
     );
-    renderTripsPage();
+    if (typeof renderTripsPage === 'function') {
+      renderTripsPage();
+    } else {
+      console.error("renderTripsPage is not defined!");
+      contentArea.innerHTML = '<div class="panel"><p style="color: red;">Lỗi: renderTripsPage không tồn tại</p></div>';
+    }
   }
 }
 

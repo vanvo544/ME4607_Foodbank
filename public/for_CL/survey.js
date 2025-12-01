@@ -39,10 +39,10 @@ function loadHouseholds() {
   }
 }
 
-let clHouseholds = loadHouseholds();
+let surveyHouseholds = loadHouseholds();
 
 function saveHouseholds() {
-  localStorage.setItem(CL_HOUSEHOLDS_KEY, JSON.stringify(clHouseholds));
+  localStorage.setItem(CL_HOUSEHOLDS_KEY, JSON.stringify(surveyHouseholds));
 }
 
 // ===== Demo surveys mặc định =====
@@ -50,6 +50,8 @@ const defaultSurveys = [
   {
     surveyId: "SV_001",
     householdId: "HH_9100402000",
+    householdName: "Hộ Trần Văn Hùng",
+    leader: "Lê Văn B – Tổ trưởng Tổ 3, P. 1, Q.4",
     month: "03/2025",
     surveyDate: "2025-03-01 14:30",
     householder: "Trần Văn Hùng",
@@ -57,11 +59,17 @@ const defaultSurveys = [
     childrenCount: 1,
     elderlyCount: 1,
     vulnerabilityType: "Lao động thu nhập thấp / Người già",
-    notes: "Hộ có người bị bệnh mãn tính, cần hỗ trợ thường xuyên",
+    monthlyIncome: "4.500.000 VND",
+    livingCondition: "Nhà tạm/Phòng trọ không đủ điều kiện",
+    specialNeeds: "Hỗ trợ thực phẩm, dụng cụ sinh hoạt",
+    notes: "Hộ có người bị bệnh mãn tính, cần hỗ trợ thuốc định kỳ",
+    status: "Hoàn thành",
   },
   {
     surveyId: "SV_002",
-    householdId: "HH_9100501001",
+    householdId: "HH_9100501001", 
+    householdName: "Hộ Nguyễn Thị Lan",
+    leader: "Ngô Thị Hoa – Tổ trưởng Tổ 1, P. 1, Q.4",
     month: "02/2025",
     surveyDate: "2025-02-15 10:15",
     householder: "Nguyễn Thị Lan",
@@ -69,7 +77,11 @@ const defaultSurveys = [
     childrenCount: 2,
     elderlyCount: 0,
     vulnerabilityType: "Trẻ em / Thu nhập thấp",
+    monthlyIncome: "3.800.000 VND",
+    livingCondition: "Nhà tạm/Phòng trọ",
+    specialNeeds: "Hỗ trợ thực phẩm, sách vở cho trẻ",
     notes: "Cần hỗ trợ gạo và sữa cho trẻ",
+    status: "Hoàn thành",
   },
 ];
 
@@ -144,15 +156,35 @@ function renderSurveyPage() {
             </select>
           </div>
           <div class="input-group">
+            <label>Thu nhập hàng tháng</label>
+            <input id="surveyMonthlyIncome" class="input" placeholder="VD: 4.500.000 VND" />
+          </div>
+          <div class="input-group">
+            <label>Điều kiện sống *</label>
+            <select id="surveyLivingCondition" class="input" required>
+              <option value="">-- Chọn điều kiện sống --</option>
+              <option value="Nhà riêng/Chung cư">Nhà riêng/Chung cư</option>
+              <option value="Nhà tạm/Phòng trọ">Nhà tạm/Phòng trọ</option>
+              <option value="Nhà tạm/Phòng trọ không đủ điều kiện">Nhà tạm/Phòng trọ không đủ điều kiện</option>
+              <option value="Vô gia cư">Vô gia cư</option>
+              <option value="Khác">Khác</option>
+            </select>
+          </div>
+          <div class="input-group">
             <label>Tháng khảo sát</label>
             <input id="surveyMonth" class="input" placeholder="VD: 03/2025" />
           </div>
         </div>
 
         <div class="input-group">
+          <label>Nhu cầu đặc biệt</label>
+          <input id="surveySpecialNeeds" class="input" placeholder="VD: Hỗ trợ thực phẩm, dụng cụ sinh hoạt" />
+        </div>
+
+        <div class="input-group">
           <label>Ghi chú thêm</label>
           <textarea id="surveyNotes" class="input" rows="3"
-            placeholder="Mô tả thêm về nhu cầu đặc biệt nếu có..."></textarea>
+            placeholder="Mô tả thêm về tình hình đặc biệt của hộ..."></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">
@@ -184,11 +216,28 @@ function renderSurveyPage() {
               <th>Thành viên</th>
               <th>Trẻ em</th>
               <th>Người già</th>
-              <th>Kiểu tổn thương</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
             </tr>
           </thead>
           <tbody id="surveyTableBody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Modal chi tiết khảo sát -->
+    <div id="surveyDetailModal" class="modal">
+      <div class="modal-backdrop" id="surveyDetailBackdrop" onclick="closeSurveyDetail()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <h2 class="modal-title" id="surveyDetailTitle">Chi tiết khảo sát</h2>
+            <button class="modal-close" id="surveyDetailClose" onclick="closeSurveyDetail()">×</button>
+          </div>
+          
+          <div id="surveyDetailBody">
+            <!-- Chi tiết sẽ được render ở đây -->
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -196,7 +245,7 @@ function renderSurveyPage() {
   // Đổ dropdown hộ
   const hhSelect = document.getElementById("surveyHouseholdId");
   const hhFilterSelect = document.getElementById("surveyFilterHousehold");
-  clHouseholds.forEach((hh) => {
+  surveyHouseholds.forEach((hh) => {
     const opt1 = document.createElement("option");
     opt1.value = hh.id;
     opt1.textContent = `${hh.id} – ${hh.name}`;
@@ -220,7 +269,7 @@ function renderSurveyPage() {
   // Khi chọn hộ -> tự fill tên chủ hộ
   hhSelect.addEventListener("change", () => {
     const value = hhSelect.value;
-    const hh = clHouseholds.find((h) => h.id === value);
+    const hh = surveyHouseholds.find((h) => h.id === value);
     const ownerInput = document.getElementById("surveyHouseholder");
     if (ownerInput) {
       ownerInput.value = hh ? hh.name : "";
@@ -237,7 +286,7 @@ function renderSurveyPage() {
       return;
     }
 
-    const hh = clHouseholds.find((h) => h.id === householdId);
+    const hh = surveyHouseholds.find((h) => h.id === householdId);
     const householder =
       document.getElementById("surveyHouseholder").value || (hh && hh.name) || "";
     const totalMembers = Number(
@@ -251,11 +300,18 @@ function renderSurveyPage() {
     );
     const vulnerabilityType =
       document.getElementById("surveyVulnerability").value;
+    const monthlyIncome = document.getElementById("surveyMonthlyIncome").value || "";
+    const livingCondition = document.getElementById("surveyLivingCondition").value;
+    const specialNeeds = document.getElementById("surveySpecialNeeds").value || "";
     const month = document.getElementById("surveyMonth").value || "";
     const notes = document.getElementById("surveyNotes").value || "";
 
     if (!totalMembers || totalMembers <= 0) {
       alert("Số thành viên phải lớn hơn 0.");
+      return;
+    }
+    if (!livingCondition) {
+      alert("Vui lòng chọn điều kiện sống.");
       return;
     }
 
@@ -266,6 +322,8 @@ function renderSurveyPage() {
     clSurveys.unshift({
       surveyId,
       householdId,
+      householdName: (hh && hh.name) || householder,
+      leader: "Community Leader", // Có thể lấy từ thông tin đăng nhập
       month,
       surveyDate,
       householder,
@@ -273,7 +331,11 @@ function renderSurveyPage() {
       childrenCount,
       elderlyCount,
       vulnerabilityType,
+      monthlyIncome,
+      livingCondition,
+      specialNeeds,
       notes,
+      status: "Hoàn thành",
     });
     saveSurveys();
     alert("Đã lưu khảo sát mới.");
@@ -307,19 +369,130 @@ function renderSurveyList() {
   );
 
   list.forEach((survey) => {
-    const hh = clHouseholds.find((h) => h.id === survey.householdId);
+    const hh = surveyHouseholds.find((h) => h.id === survey.householdId);
+    const statusClass = survey.status === "Hoàn thành" ? "status-Delivered" : "status-InTransit";
+    
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${survey.surveyId}</td>
+      <td>
+        <button class="order-id" onclick="openSurveyDetail('${survey.surveyId}')" style="background: none; border: none; color: #000000ff; cursor: pointer; font-size: 0.9rem; font-weight: 600; padding: 0;">
+          ${survey.surveyId}
+        </button>
+      </td>
       <td>${survey.householdId} – ${(hh && hh.name) || ""}</td>
       <td>${survey.month || ""}</td>
       <td>${survey.totalMembers}</td>
       <td>${survey.childrenCount}</td>
       <td>${survey.elderlyCount}</td>
-      <td>${survey.vulnerabilityType}</td>
+      <td>
+        <span class="status-pill ${statusClass}" style="font-size: 0.75rem;">✓ ${survey.status || "Hoàn thành"}</span>
+      </td>
+      <td>
+        <button class="btn btn-outline" onclick="openSurveyDetail('${survey.surveyId}')" style="padding: 4px 8px; font-size: 0.8rem;">
+          Xem
+        </button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
+}
+
+function openSurveyDetail(surveyId) {
+  const survey = clSurveys.find((s) => s.surveyId === surveyId);
+  if (!survey) return;
+
+  const modal = document.getElementById("surveyDetailModal");
+  const title = document.getElementById("surveyDetailTitle");
+  const body = document.getElementById("surveyDetailBody");
+
+  title.textContent = `Chi tiết khảo sát – ${survey.surveyId}`;
+
+  body.innerHTML = `
+    <div style="display: grid; gap: 16px;">
+      <div>
+        <h3 style="margin: 0 0 10px; font-size: 0.95rem; color: #6b7280; text-transform: uppercase; font-weight: 600;">Thông Tin Khảo Sát</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Mã Khảo Sát</div>
+            <div class="info-value">${survey.surveyId}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Mã Tài Khoản HH</div>
+            <div class="info-value">${survey.householdId}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Thời Điểm Khảo Sát</div>
+            <div class="info-value">${survey.surveyDate}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Tổ Trưởng Mở Khảo Sát</div>
+            <div class="info-value" style="font-size: 0.85rem;">${survey.leader || "Community Leader"}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid #e5e7eb; padding-top: 12px;">
+        <h3 style="margin: 0 0 10px; font-size: 0.95rem; color: #6b7280; text-transform: uppercase; font-weight: 600;">Thông Tin Hộ</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Chủ Hộ Khẩu</div>
+            <div class="info-value">${survey.householder}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Số Thành Viên Trong Hộ</div>
+            <div class="info-value">${survey.totalMembers} người</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Số Trẻ Em (≤ 12 tuổi)</div>
+            <div class="info-value">${survey.childrenCount} người</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Số Người Già (≥ 60 tuổi)</div>
+            <div class="info-value">${survey.elderlyCount} người</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid #e5e7eb; padding-top: 12px;">
+        <h3 style="margin: 0 0 10px; font-size: 0.95rem; color: #6b7280; text-transform: uppercase; font-weight: 600;">Tình Trạng Tổn Thương</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Kiểu Tổn Thương</div>
+            <div class="info-value" style="font-size: 0.85rem;">${survey.vulnerabilityType}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Thu Nhập Hàng Tháng</div>
+            <div class="info-value">${survey.monthlyIncome || "Chưa cung cấp"}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Điều Kiện Sống</div>
+            <div class="info-value" style="font-size: 0.85rem;">${survey.livingCondition}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Nhu Cầu Đặc Biệt</div>
+            <div class="info-value" style="font-size: 0.85rem;">${survey.specialNeeds || "Không có"}</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid #e5e7eb; padding-top: 12px;">
+        <h3 style="margin: 0 0 10px; font-size: 0.95rem; color: #6b7280; text-transform: uppercase; font-weight: 600;">Ghi Chú</h3>
+        <p style="margin: 0; color: #4b5563; line-height: 1.6; background: #f9fafb; padding: 12px; border-radius: 8px;">
+          ${survey.notes || "Không có ghi chú thêm."}
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+        <button class="btn btn-outline" onclick="closeSurveyDetail()" style="flex: 1;">Đóng</button>
+      </div>
+    </div>
+  `;
+
+  modal.classList.add("visible");
+}
+
+function closeSurveyDetail() {
+  document.getElementById("surveyDetailModal").classList.remove("visible");
 }
 
 // ===== Trang: Quản lý danh sách hộ yếu thế =====
@@ -374,7 +547,7 @@ function renderHouseholdsPage() {
     </div>
 
     <div class="panel">
-      <h2 class="panel-title">📋 Danh sách hộ yếu thế (${clHouseholds.length})</h2>
+      <h2 class="panel-title">📋 Danh sách hộ yếu thế (${surveyHouseholds.length})</h2>
 
       <div class="input-group" style="max-width:260px;">
         <label>Tìm kiếm theo mã hoặc tên</label>
@@ -418,12 +591,12 @@ function renderHouseholdsPage() {
       return;
     }
 
-    const existingIndex = clHouseholds.findIndex((h) => h.id === id);
+    const existingIndex = surveyHouseholds.findIndex((h) => h.id === id);
 
     if (editingHouseholdId && editingHouseholdId === id) {
-      const idx = clHouseholds.findIndex((h) => h.id === editingHouseholdId);
+      const idx = surveyHouseholds.findIndex((h) => h.id === editingHouseholdId);
       if (idx !== -1) {
-        clHouseholds[idx] = { id, name, phone, address, vulnerability };
+        surveyHouseholds[idx] = { id, name, phone, address, vulnerability };
       }
       alert("Đã cập nhật thông tin hộ.");
     } else if (existingIndex !== -1) {
@@ -432,13 +605,13 @@ function renderHouseholdsPage() {
           "Mã hộ này đã tồn tại. Bạn có muốn ghi đè thông tin hiện tại không?"
         )
       ) {
-        clHouseholds[existingIndex] = { id, name, phone, address, vulnerability };
+        surveyHouseholds[existingIndex] = { id, name, phone, address, vulnerability };
         alert("Đã cập nhật thông tin hộ.");
       } else {
         return;
       }
     } else {
-      clHouseholds.push({ id, name, phone, address, vulnerability });
+      surveyHouseholds.push({ id, name, phone, address, vulnerability });
       alert("Đã thêm hộ yếu thế mới.");
     }
 
@@ -467,7 +640,7 @@ function renderHouseholdTableRows(searchText = "") {
   const keyword = searchText.toLowerCase().trim();
   tbody.innerHTML = "";
 
-  clHouseholds
+  surveyHouseholds
     .filter((hh) => {
       if (!keyword) return true;
       return (
@@ -502,7 +675,7 @@ function renderHouseholdTableRows(searchText = "") {
 
 // Các hàm global cho nút Sửa/Xóa
 function editHousehold(hhId) {
-  const hh = clHouseholds.find((h) => h.id === hhId);
+  const hh = surveyHouseholds.find((h) => h.id === hhId);
   if (!hh) return;
   editingHouseholdId = hhId;
 
@@ -515,7 +688,8 @@ function editHousehold(hhId) {
 
 function deleteHousehold(hhId) {
   if (!confirm("Bạn có chắc chắn muốn xóa hộ này khỏi danh sách?")) return;
-  clHouseholds = clHouseholds.filter((h) => h.id !== hhId);
+  surveyHouseholds = surveyHouseholds.filter((h) => h.id !== hhId);
   saveHouseholds();
   renderHouseholdTableRows();
 }
+

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Script Loading</title>
+</head>
+<body>
+  <h1>Testing Script Load Order</h1>
+  <div id="results"></div>
+
+  <script>
+    const results = document.getElementById('results');
+    
+    function log(msg) {
+      const p = document.createElement('p');
+      p.textContent = msg;
+      results.appendChild(p);
+      console.log(msg);
+    }
+
+    log('Starting script loading test...');
+  </script>
+
+  <script src="cl.js"></script>
+  <script>log('cl.js loaded');</script>
+
+  <script src="dashboard.js"></script>
+  <script>log('dashboard.js loaded');</script>
+
+  <script src="survey.js"></script>
+  <script>
+    log('survey.js loaded');
+    log('renderSurveyPage exists: ' + (typeof renderSurveyPage !== 'undefined'));
+  </script>
+
+  <script src="orders.js"></script>
+  <script>
+    log('orders.js loaded');
+    log('renderOrdersPage exists: ' + (typeof renderOrdersPage !== 'undefined'));
+    log('renderHouseholdsPage exists: ' + (typeof renderHouseholdsPage !== 'undefined'));
+  </script>
+
+  <script src="trip.js"></script>
+  <script>
+    log('trip.js loaded');
+    log('renderTripsPage exists: ' + (typeof renderTripsPage !== 'undefined'));
+  </script>
+</body>
+</html>

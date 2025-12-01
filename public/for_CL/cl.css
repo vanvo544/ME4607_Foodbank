@@ -1419,3 +1419,8 @@ body {
 /* ===== Responsive ===== */
 /* (giữ nguyên toàn bộ phần responsive như household.css) */
 /* ... (phần còn lại copy y nguyên từ household.css của bạn) ... */
+
+/* ===== Chip buttons ===== */
+.chip { padding: 6px 12px; border-radius: 999px; border: 1px solid #e5e7eb; background: #ffffff; font-size: 0.85rem; font-weight: 500; color: #6b7280; cursor: pointer; transition: all 0.15s; }
+.chip:hover { background: #f9fafb; border-color: #d1d5db; }
+.chip-active { background: #facc15; border-color: #facc15; color: #111827; font-weight: 600; }
