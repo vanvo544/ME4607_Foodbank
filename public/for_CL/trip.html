@@ -2,12 +2,14 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>Trips – Foodbank Logistics Hub</title>
+  <title>Chuyến giao – Foodbank Logistics Hub</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- CSS giao diện -->
-   <link rel="stylesheet" href="orders.css" />
-  <link rel="stylesheet" href="trip.css" />
+  <!-- CSS giao diện Community Leader -->
+  <link rel="stylesheet" href="cl.css" />
+  <!-- Dùng lại style admin cho layout trip -->
+  <link rel="stylesheet" href="../for_admin/orders.css" />
+  <link rel="stylesheet" href="../for_admin/trip.css" />
 
   <!-- Leaflet (OpenStreetMap) -->
   <link
@@ -18,87 +20,48 @@
   />
 </head>
 <body class="app">
-
-  <!-- SIDEBAR CHÍNH -->
-    <aside class="sidebar-main">
-  <div class="sidebar-main-header">
-    <div class="logo-circle">FB</div>
-    <div>
-      <div class="logo-title">Foodbank</div>
-      <div class="logo-sub">Logistics Hub</div>
+  <!-- SIDEBAR CHÍNH CHO COMMUNITY LEADER -->
+  <aside class="sidebar-main">
+    <div class="sidebar-main-header">
+      <div class="logo-circle">FB</div>
+      <div>
+        <div class="logo-title">Foodbank Hub</div>
+        <div class="logo-sub">Community Leader</div>
+      </div>
     </div>
-  </div>
 
-<nav class="sidebar-main-nav">
-  <button class="nav-item" onclick="goTo('orders.html')">Đơn hàng</button>
+    <!-- Nút hamburger mobile -->
+    <button class="sidebar-hamburger" id="sidebarToggle">☰</button>
 
-  <!-- Nhóm: Quản lý tài khoản -->
-  <div class="nav-group">
-    <button
-      class="nav-item nav-item-with-chevron"
-      id="navAccountGroupBtn"
-      type="button"
-    >
-      <span>Quản lý tài khoản</span>
-      <span class="nav-item-chevron" id="navAccountChevron">▸</span>
-    </button>
+    <nav class="sidebar-main-nav" id="sidebarNav">
+      <button class="nav-item" onclick="window.location.href='index.html'">
+        Tổng quan
+      </button>
+      <button class="nav-item" onclick="window.location.href='survey.html'">
+        Khảo sát nhu cầu
+      </button>
+      <button class="nav-item" onclick="window.location.href='request.html'">
+        Yêu cầu giao hàng
+      </button>
+      <button class="nav-item" onclick="window.location.href='orders.html'">
+        Đơn hàng trong khu
+      </button>
+      <!-- Trang hiện tại -->
+      <button class="nav-item nav-item-active">
+        🗺️ Chuyến giao
+      </button>
+    </nav>
 
-    <div class="nav-subitems" id="navAccountSubmenu">
-      <button
-        class="nav-subitem"
-        onclick="goTo('accounts.html')"
-        type="button"
-      >
-        Kiểm duyệt thông tin
-      </button>
-      <button
-        class="nav-subitem"
-        onclick="goTo('households.html')"
-        type="button"
-      >
-        Hộ yếu thế
-      </button>
-      <button
-        class="nav-subitem"
-        onclick="goTo('volunteers.html')"
-        type="button"
-      >
-        Tình nguyện viên
-      </button>
-      <button
-        class="nav-subitem"
-        onclick="goTo('community.html')"
-        type="button"
-      >
-        Tổ dân phố
-      </button>
+    <div class="sidebar-main-user">
+      <div class="avatar-circle">CL</div>
+      <div>
+        <div class="user-name">CL Nguyễn A</div>
+        <div class="user-role">Community Leader</div>
+      </div>
     </div>
-  </div>
+  </aside>
 
-  <!-- Các mục còn lại cùng level với Quản lý tài khoản -->
-  <button class="nav-item nav-subitem-active" onclick="goTo('trip.html')">
-    Trip / Tuyến đường
-  </button>
-  <button class="nav-item" onclick="goTo('campaign.html')">Chiến dịch</button>
-  <button class="nav-item" onclick="goTo('warehouse.html')">Kho tập kết</button>
-  <button class="nav-item" onclick="goTo('area.html')">Khu vực</button>
-  <button class="nav-item" onclick="goTo('support.html')">Sự cố & hỗ trợ</button>
-</nav>
-
-  <div class="sidebar-main-user">
-    <div class="avatar-circle">AD</div>
-    <div>
-      <div class="user-name">Admin – Vân</div>
-      <div class="user-role">Điều phối trung tâm</div>
-    </div>
-  </div>
-</aside>
-
-
-
-
-
-  <!-- LAYOUT TRIP -->
+  <!-- LAYOUT TRIP: giống for_admin nhưng bỏ nút Add trip -->
   <main class="trip-layout">
     <!-- SIDEBAR TRIP (CỘT THỨ 2) -->
     <section class="trip-sidebar">
@@ -107,7 +70,7 @@
           <h1>Tracking trips</h1>
           <p>Theo dõi các chuyến giao hàng bằng xe máy</p>
         </div>
-        <button class="btn btn-primary" id="btnAddTrip">+ Add trip (demo)</button>
+        <!-- ĐÃ BỎ nút Add trip để chỉ còn xem -->
       </header>
 
       <div class="trip-sidebar-filters">
@@ -133,8 +96,6 @@
     </section>
 
     <!-- PANEL CHI TIẾT + MAP -->
-        <!-- PANEL CHI TIẾT + MAP -->
-        <!-- PANEL CHI TIẾT + MAP -->
     <section class="trip-detail">
       <!-- Thanh tiêu đề Trip -->
       <header class="trip-detail-header">
@@ -218,15 +179,13 @@
                     <th>Trạng thái</th>
                   </tr>
                 </thead>
-                <tbody id="gpsLogTableBody">
-                  <!-- JS render GPS log -->
-                </tbody>
+                <tbody id="gpsLogTableBody"></tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- Cột map -->
+        <!-- Cột bản đồ -->
         <div class="trip-map-wrapper">
           <div class="map-toolbar">
             <button class="map-btn map-btn-active">Map</button>
@@ -235,8 +194,6 @@
         </div>
       </div>
     </section>
-
-
   </main>
 
   <!-- Leaflet JS -->
@@ -246,10 +203,20 @@
     crossorigin=""
   ></script>
 
-  <!-- JS logic Trip -->
+  <!-- JS logic Trip (view-only) -->
   <script src="trip.js"></script>
-  <script src="navigation.js"></script>
 
-
+  <!-- Toggle sidebar mobile -->
+  <script>
+    (function () {
+      const toggleBtn = document.getElementById("sidebarToggle");
+      const nav = document.getElementById("sidebarNav");
+      if (toggleBtn && nav) {
+        toggleBtn.addEventListener("click", () => {
+          nav.classList.toggle("show");
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

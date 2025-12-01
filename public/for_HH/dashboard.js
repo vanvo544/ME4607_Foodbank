@@ -3,19 +3,19 @@ function requireHousehold() {
   const raw = localStorage.getItem("currentUser");
 
   if (!raw) {
-    window.location.href = "../login.html";
+    window.location.href = "../for_admin/login.html";
     return false;
   }
 
   try {
     const user = JSON.parse(raw);
     if (user.role !== "household") {
-      window.location.href = "../login.html";
+      window.location.href = "../for_admin/login.html";
       return false;
     }
     return user;
   } catch (err) {
-    window.location.href = "../login.html";
+    window.location.href = "../for_admin/login.html";
     return false;
   }
 }
@@ -102,7 +102,7 @@ function renderPageContent() {
 function logout() {
   if (confirm("Bạn chắc chắn muốn đăng xuất?")) {
     localStorage.removeItem("currentUser");
-    window.location.href = "../login.html";
+    window.location.href = "../for_admin/login.html";
   }
 }
 

@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Check login
   const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
   if (!user.phone || user.role !== 'volunteer') {
-    window.location.href = '../login.html';
+    window.location.href = '../for_admin/login.html';
     return;
   }
 
@@ -86,6 +86,6 @@ function goToPage(page) {
 function logout() {
   if (confirm('Bạn chắc chắn muốn đăng xuất?')) {
     localStorage.removeItem('currentUser');
-    window.location.href = '../login.html';
+    window.location.href = '../for_admin/login.html';
   }
 }
