@@ -35,7 +35,7 @@
     /* ========= Sidebar ========= */
 
     .sidebar-main {
-      width: 220px;
+      width: 200px;
       background: #050816;
       color: #f9fafb;
       padding: 16px 16px 20px;
@@ -136,11 +136,13 @@
 
     /* ========= Layout Campaign (cột 2 + 3) ========= */
 
-    .campaign-layout {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 360px minmax(0, 1fr);
-    }
+.campaign-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr); /* bên trái list, bên phải detail */
+  column-gap: 2px;       /* GIẢM khoảng cách tại đây, 20–24px là ổn */
+  padding: 0px 0px;     /* tuỳ bạn giữ hoặc chỉnh */
+}
 
     /* ========= Sidebar campaign (cột 2) ========= */
 
@@ -150,6 +152,7 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
+      width: 360px;
     }
 
     .campaign-sidebar-header {
@@ -204,7 +207,7 @@
     }
 
     .chip {
-      border-radius: 999px;
+      border-radius: 99px;
       border: 1px solid #e5e7eb;
       padding: 3px 10px;
       font-size: 0.75rem;
@@ -249,7 +252,7 @@
 
     .campaign-card-inner {
       display: flex;
-      gap: 10px;
+      gap: 20px;
     }
 
     .campaign-thumb-wrapper {
@@ -347,6 +350,7 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
+      min-width: 320px;
     }
 
     .campaign-detail-header {

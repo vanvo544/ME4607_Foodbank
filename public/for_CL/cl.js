@@ -1,26 +1,41 @@
 // ===== Auth guard: chỉ cho Community Leader =====
+// ===== Auth guard cho Community Leader =====
+// ===== Auth guard cho Community Leader =====
 function requireCommunityLeader() {
   const raw = localStorage.getItem("currentUser");
+
+  // Không có thông tin đăng nhập -> quay về login
   if (!raw) {
-    window.location.href = "../public/login.html";
+    window.location.href = "../for_admin/login.html";   // từ /for_CL/ ra /login.html
     return null;
   }
+
   try {
     const user = JSON.parse(raw);
-    const role = user?.role;
-    // Chấp nhận cả "community_leader" (login demo) và "CL" (sau này từ DB)
-    const ok = role === "community_leader" || role === "CL";
-    if (!ok) {
+
+    // Chấp nhận cả "community_leader" (từ login demo) hoặc "CL" (sau này nếu bạn đổi)
+    const role = user.role;
+    if (role !== "community_leader" && role !== "CL") {
       alert("Bạn không có quyền truy cập giao diện Community Leader.");
-      window.location.href = "../public/login.html";
+      window.location.href = "../for_admin/login.html";
       return null;
     }
+
     return user;
-  } catch (e) {
-    window.location.href = "../public/login.html";
+  } catch (err) {
+    window.location.href = "../for_admin/login.html";
     return null;
   }
 }
+// ===== Logout =====
+
+function logout() {
+  if (confirm("Bạn chắc chắn muốn đăng xuất?")) {
+    localStorage.removeItem("currentUser");
+    window.location.href = "../for_admin/login.html";
+  }
+}
+
 
 // ===== Demo data =====
 const clOrders = [
@@ -400,6 +415,20 @@ function renderSupportList() {
   });
 }
 
+document.querySelectorAll(".cl-nav-item").forEach((btn)=>{
+  btn.addEventListener("click",()=>{
+    const tab = btn.dataset.tab;
+    switch(tab){
+      case "survey": window.location.href="survey.html"; break;
+      case "households": window.location.href="households.html"; break;
+      case "request": window.location.href="request.html"; break;
+      case "orders": window.location.href="orders.html"; break;
+      case "trip": window.location.href="trip.html"; break;
+      default: window.location.href="index.html"; break;
+    }
+  });
+});
+
 // ===== Navigation =====
 function switchScreen(name) {
   document.querySelectorAll("[data-screen]").forEach((sec) => {
@@ -441,6 +470,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("clLogout").addEventListener("click", () => {
     localStorage.removeItem("currentUser");
-    window.location.href = "../public/login.html";
+    window.location.href = "../for_admin/login.html";
   });
 });

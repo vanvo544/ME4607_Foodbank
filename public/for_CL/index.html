@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Community Leader – Foodbank Logistics Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS giao diện cho Community Leader -->
+  <link rel="stylesheet" href="cl.css" />
+  <!-- Reuse admin styles for a more polished look -->
+  <link rel="stylesheet" href="../for_admin/orders.css" />
+
+  <!-- Leaflet (OpenStreetMap) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+</head>
+<body class="app">
+  <!-- SIDEBAR CHÍNH -->
+  <aside class="sidebar-main">
+    <div class="sidebar-main-header">
+      <div class="logo-circle">FB</div>
+      <div>
+        <div class="logo-title">Foodbank</div>
+        <div class="logo-sub">Community Leader</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-main-nav" id="sidebarNav">
+      <button class="nav-item nav-item-active" id="navSurvey" onclick="goToPage('survey')">
+        📋 Khảo sát nhu cầu
+      </button>
+      <button class="nav-item" id="navHouseholds" onclick="goToPage('households')">
+        👥 Hộ yếu thế
+      </button>
+      <button class="nav-item" id="navRequests" onclick="goToPage('requests')">
+        📦 Yêu cầu giao hàng
+      </button>
+      <button class="nav-item" id="navOrders" onclick="goToPage('orders')">
+        🚚 Đơn hàng trong khu
+      </button>
+      <button class="nav-item" id="navTrips" onclick="goToPage('trips')">
+        🗺️ Chuyến giao
+      </button>
+    </nav>
+
+    <button class="sidebar-hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()">☰</button>
+
+    <div class="sidebar-main-user">
+      <div class="avatar-circle" id="userInitials">CL</div>
+      <div>
+        <div class="user-name" id="userName">Community Leader</div>
+        <div class="user-role">Tổ trưởng khu vực</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- LAYOUT CHÍNH -->
+  <main class="orders-layout household-layout">
+    <!-- HEADER -->
+    <header class="household-header">
+      <div>
+        <h1 id="pageTitle">Khảo sát nhu cầu</h1>
+        <p id="pageSubtitle">Thực hiện & xem lại khảo sát nhu cầu của các hộ yếu thế</p>
+      </div>
+      <div class="household-header-right">
+        <button class="btn btn-outline" onclick="logout()">🚪 Đăng xuất</button>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA - sẽ hiển thị các trang khác nhau -->
+    <div class="household-content" id="contentArea">
+      <!-- Nội dung sẽ được render động -->
+    </div>
+  </main>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
+  <!-- JS logic cho Community Leader -->
+  <script src="cl.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="survey.js"></script>
+  <script src="orders.js"></script>
+  <script src="trips.js"></script>
+</body>
+</html>

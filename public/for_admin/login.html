@@ -358,21 +358,31 @@ function previewImage(input) {
 // 0978956342 -> Volunteer   (chưa làm giao diện riêng)
 // 0928956342 -> Household   (chưa làm giao diện riêng)
 const TEST_ACCOUNTS = {
-  "0918956342": { role: "admin",            redirect: "orders.html" },
+  "0918956342": { role: "admin",            redirect: "for_admin/orders.html" },
   "0908956342": { role: "community_leader", redirect: "../for_CL/index.html" },
-  "0978956342": { role: "volunteer",        redirect: "volunteers.html" },
-  "0928956342": { role: "household",        redirect: "households.html" }
+  "0978956342": { role: "volunteer",        redirect: "for_admin/volunteers.html" },
+  "0928956342": { role: "household",        redirect: "../for_HH/index.html" }
 };
+
+
 
 function handleLoginSubmit(e) {
   e.preventDefault();
   const phoneInput = document.querySelector('#loginForm input[type="tel"]');
-  const phone = (phoneInput?.value || "").trim();
+  const raw = (phoneInput?.value || "").trim();
 
+  // Normalize phone input: remove non-digits, convert +84/84... to leading 0
+  let phone = raw.replace(/\D/g, ''); // keep digits only
+  if (phone.startsWith('84') && phone.length >= 11) {
+    phone = '0' + phone.slice(2);
+  }
   if (!phone) {
     alert("Vui lòng nhập số điện thoại.");
     return;
   }
+
+  // Helpful debug output in console when testing
+  console.log('Login attempt phone(normalized)=', phone, 'raw=', raw);
 
   const config = TEST_ACCOUNTS[phone];
   if (!config) {
@@ -389,7 +399,65 @@ function handleLoginSubmit(e) {
 
   const user = { phone, role: config.role };
   localStorage.setItem("currentUser", JSON.stringify(user));
-  window.location.href = config.redirect;
+
+  // Robust redirect: try several candidate URLs (handles serving from /public or repo root)
+  async function tryRedirect(relPath) {
+    const seen = new Set();
+    const candidates = [];
+
+    // Helper to add absolute URL candidates
+    function addCandidate(base, rel) {
+      try {
+        const u = new URL(rel, base).href;
+        if (!seen.has(u)) {
+          seen.add(u);
+          candidates.push(u);
+        }
+      } catch (err) {}
+    }
+
+    // Build candidate bases
+    const currentHref = location.href;
+    const origin = location.origin;
+    const currentDir = origin + location.pathname.replace(/\/[^/]*$/, '/') ;
+    addCandidate(currentHref, relPath);
+    addCandidate(currentDir, relPath);
+    addCandidate(origin + '/', relPath);
+    addCandidate(origin + '/public/', relPath.replace(/^\/+/, ''));
+    addCandidate(currentDir, '../' + relPath);
+
+    // Also try raw relPath if it's already absolute-ish
+    try {
+      const raw = new URL(relPath, location.href).href;
+      if (!seen.has(raw)) { seen.add(raw); candidates.push(raw); }
+    } catch (err) {}
+
+    // Try each candidate with fetch to see if it exists, then navigate
+    for (const url of candidates) {
+      try {
+        const resp = await fetch(url, { method: 'GET', cache: 'no-store' });
+        if (resp && resp.ok) {
+          console.log('Redirecting to', url);
+          location.href = url;
+          return true;
+        }
+      } catch (err) {
+        // ignore fetch errors and try next
+        console.warn('Fetch failed for', url, err);
+      }
+    }
+
+    return false;
+  }
+
+  (async () => {
+    const ok = await tryRedirect(config.redirect);
+    if (!ok) {
+      alert('Đã đăng nhập nhưng không thể mở trang đích tự động.\n' +
+            'Thử mở thủ công: ' + config.redirect + '\n(hoặc chạy web server từ project root so /for_CL is reachable)');
+      console.warn('Tried redirects but none succeeded for', config.redirect);
+    }
+  })();
 }
 
 // ================== ĐĂNG KÝ -> LƯU VÀO localStorage ĐỂ ADMIN DUYỆT ==================

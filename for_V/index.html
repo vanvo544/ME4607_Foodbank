@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Volunteer Dashboard – Foodbank Logistics Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS giao diện -->
+  <link rel="stylesheet" href="volunteer.css" />
+
+  <!-- Leaflet (OpenStreetMap) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+</head>
+<body class="app">
+  <!-- SIDEBAR CHÍNH -->
+  <aside class="sidebar-main">
+    <div class="sidebar-main-header">
+      <div class="logo-circle">FB</div>
+      <div>
+        <div class="logo-title">Foodbank</div>
+        <div class="logo-sub">Logistics Hub</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-main-nav" id="sidebarNav">
+      <button class="nav-item nav-item-active" id="navCampaigns" onclick="goToPage('campaigns')">
+        🎯 Chiến dịch
+      </button>
+      <button class="nav-item" id="navMyCampaigns" onclick="goToPage('myCampaigns')">
+        ⭐ Chiến dịch của tôi
+      </button>
+      <button class="nav-item" id="navFeedback" onclick="goToPage('feedback')">
+        💬 Phản hồi & Góp ý
+      </button>
+      <button class="nav-item" id="navSupport" onclick="goToPage('support')">
+        🆘 Báo cáo sự cố
+      </button>
+    </nav>
+
+    <button class="sidebar-hamburger" id="hamburgerBtn" onclick="toggleMobileMenu()">☰</button>
+
+    <div class="sidebar-main-user">
+      <div class="avatar-circle" id="userInitials">VL</div>
+      <div>
+        <div class="user-name" id="userName">Tình nguyện viên</div>
+        <div class="user-role">Tình nguyện viên</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- LAYOUT CHÍNH -->
+  <main class="volunteer-layout">
+    <!-- HEADER -->
+    <header class="volunteer-header">
+      <div>
+        <h1 id="pageTitle">Chiến dịch</h1>
+        <p id="pageSubtitle">Danh sách chiến dịch tham gia</p>
+      </div>
+      <div class="volunteer-header-right">
+        <button class="btn btn-outline" onclick="logout()">🚪 Đăng xuất</button>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA -->
+    <div class="volunteer-content" id="contentArea">
+      <!-- Nội dung sẽ được render động -->
+    </div>
+  </main>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
+  <!-- JS logic -->
+  <script src="dashboard.js"></script>
+  <script src="campaigns.js"></script>
+  <script src="feedback.js"></script>
+  <script src="support.js"></script>
+</body>
+</html>
